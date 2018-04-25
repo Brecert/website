@@ -2,9 +2,8 @@ source 'https://rubygems.org'
 
 # Gems for making changes to the site locally.
 group :development do
-  gem 'guard'
-  gem 'guard-compat'
-  gem 'guard-haml'
-
-  gem 'kramdown'
+	gem 'listen', '~> 3.0'
+	gem 'wdm', '>= 0.1.0' if Gem.win_platform?
+	gem 'slim'
+	gem 'kramdown'
 end
