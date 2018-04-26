@@ -78,6 +78,10 @@ code {
   opacity: 0.75;
   font-family: var(--font-monospace);
 }
+pre {
+  padding: 0;
+  margin: 0;
+}
 .hl {
   position: relative;
   left: 50%;
@@ -189,6 +193,7 @@ main .container .box {
 }
 main .container .example {
   grid-area: example;
+  padding-left: 0;
 }
 main .container .description {
   grid-area: description;
@@ -197,7 +202,7 @@ main .container .description {
 main .container {
   grid-template:" . . ." 15px
                 " statement . example " auto
-                " . . . " 200px
+                " . . . " 20px
                 " description description description " 1fr
                 / 1fr 0px 1fr
 }
