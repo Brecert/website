@@ -1,0 +1,191 @@
+<!DOCTYPE html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>Myst - A structured, dynamic, general-purpose language</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" rel="stylesheet" /></head><link href="../styles/get-started/style.css" rel="stylesheet" /><div class="stickybar"><nav class="navbar"><div class="info"><div class="name"><span>Myst</span></div><div class="version"><span>0.0.6</span></div></div><div class="stickylogo"><a href="http://myst-lang.org/"><img height="100%" src="./assets/myst-circle.png" width="100%" /></a></div><ul class="links"><a href="/get-started"><span>Get Started</span></a><a href="http://discord.myst-lang.org/"><span>Community</span></a><a href="https://myst-lang.github.io/myst-docs"><span>Docs</span></a><a href="https://github.com/myst-lang/myst"><span>Github</span></a></ul></nav><div class="hl breaker"></div></div><main><div class="pre code"><div class="navigation-list"><ul>Blocks and Anonymous Functions</ul><ul>Functions and Clauses</ul><ul>Pattern Matching</ul><ul>Exception Handling</ul><ul>Values and Variables</ul><ul>Types and Self</ul><ul>Modules</ul><ul>Loading Code</ul><ul>Flow Control</ul><ul>Basic Operations</ul><ul>introduction</ul></div></div><div class="container"><div class="content"><h1 id="chapter-9-exception-handling">Chapter 9: Exception Handling</h1>
+
+<p>Exception handling in Myst is really a more complex form of <code>break</code> and <code>next</code>. Exceptions are generally used to immediately halt execution of a function and panic upwards until an appropriate handler is found.</p>
+
+<p>Myst adopts the <code>raise</code> and <code>rescue</code> keyword terminology from its Ruby ancestry. While the term “throw” may sometimes be used interchangeably with “raise”, Myst does <em>not</em> implement the <code>throw</code> and <code>catch</code> keywords that Ruby does, as the same behavior can easily be implemented with <code>raise</code>/<code>rescue</code>.</p>
+
+<h2 id="raise">Raise</h2>
+
+<p>Raising an exception in Myst is done using the <code>raise</code> keyword. <code>raise</code> expects to be given a value as an argument, but this value can be <em>any</em> value, even <code>nil</code>:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>raise &quot;woops&quot;
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>raise 1024 - 512
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>raise %Foo{}
+<span class="line-numbers"><a href="#n4" name="n4">4</a></span>raise nil
+</pre></div>
+</div>
+</div>
+
+<p>When ever a <code>raise</code> is encountered, execution of the current function will immediately stop (after the value has been created), and Myst will backtrack up the callstack until an appropriate handler is found (we’ll see what this looks like in a bit).</p>
+
+<p>If no matching handler for the exception is found, the program will exit with a non-zero exit status and a message of the error with the callstack that caused it.</p>
+
+<p>While Myst allows any value to be raised, it can be useful to use common, default exception types to simplify how they are handled.</p>
+
+<h2 id="rescue">Rescue</h2>
+
+<p>Once an exception has been raised, the only way to recover and continue execution of the program is with a <code>rescue</code> clauses.</p>
+
+<p><code>rescue</code> clauses are most commonly defined as suffixes for method definitions. The most basic example is a <code>rescue</code> with no parameter:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"> <a href="#n1" name="n1">1</a></span>def bar
+<span class="line-numbers"> <a href="#n2" name="n2">2</a></span>  raise &quot;woops&quot;
+<span class="line-numbers"> <a href="#n3" name="n3">3</a></span>end
+<span class="line-numbers"> <a href="#n4" name="n4">4</a></span>
+<span class="line-numbers"> <a href="#n5" name="n5">5</a></span>def foo
+<span class="line-numbers"> <a href="#n6" name="n6">6</a></span>  bar
+<span class="line-numbers"> <a href="#n7" name="n7">7</a></span>  :finished_normally
+<span class="line-numbers"> <a href="#n8" name="n8">8</a></span>rescue
+<span class="line-numbers"> <a href="#n9" name="n9">9</a></span>  :rescued
+<span class="line-numbers"><strong><a href="#n10" name="n10">10</a></strong></span>end
+<span class="line-numbers"><a href="#n11" name="n11">11</a></span>
+<span class="line-numbers"><a href="#n12" name="n12">12</a></span>foo #=&gt; :rescued
+</pre></div>
+</div>
+</div>
+
+<p>Notice that the return value of calling <code>foo</code> is <code>:rescued</code>, <em>not</em> <code>:finished_normally</code>. Because <code>bar</code> raised an exception, the language immediately started panicking. This panic was stopped by the <code>rescue</code> on <code>foo</code>, meaning <code>:finished_normally</code> was never encountered in the main body of <code>foo</code>.</p>
+
+<p><code>rescue</code> clauses may also provide a pattern-matched parameter to check against the exception being raised:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"> <a href="#n1" name="n1">1</a></span>def baz
+<span class="line-numbers"> <a href="#n2" name="n2">2</a></span>  raise &quot;woops&quot;
+<span class="line-numbers"> <a href="#n3" name="n3">3</a></span>end
+<span class="line-numbers"> <a href="#n4" name="n4">4</a></span>
+<span class="line-numbers"> <a href="#n5" name="n5">5</a></span>def bar
+<span class="line-numbers"> <a href="#n6" name="n6">6</a></span>  baz
+<span class="line-numbers"> <a href="#n7" name="n7">7</a></span>rescue n : Integer
+<span class="line-numbers"> <a href="#n8" name="n8">8</a></span>  :rescued_integer
+<span class="line-numbers"> <a href="#n9" name="n9">9</a></span>end
+<span class="line-numbers"><strong><a href="#n10" name="n10">10</a></strong></span>
+<span class="line-numbers"><a href="#n11" name="n11">11</a></span>def foo
+<span class="line-numbers"><a href="#n12" name="n12">12</a></span>  bar
+<span class="line-numbers"><a href="#n13" name="n13">13</a></span>rescue e
+<span class="line-numbers"><a href="#n14" name="n14">14</a></span>  :rescued_anything
+<span class="line-numbers"><a href="#n15" name="n15">15</a></span>end
+<span class="line-numbers"><a href="#n16" name="n16">16</a></span>
+<span class="line-numbers"><a href="#n17" name="n17">17</a></span>foo #=&gt; :rescued_anything
+</pre></div>
+</div>
+</div>
+
+<p>In this case, <code>baz</code> raised the String value <code>"woops"</code>. While <code>bar</code> defines a rescue clause, its parameter specifies an Integer value, which does <em>not</em> match the String that has been raised, so panicking continues.</p>
+
+<p><code>foo</code>’s rescue clause simply defines a name for the exception, which will always match, so the exception is caught and the clause is evaluated, returning <code>rescued_anything</code>.</p>
+
+<p>Just like a <code>when</code> chain, multiple <code>rescue</code>s can be given on the same method to match against different exceptions in the same place:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"> <a href="#n1" name="n1">1</a></span>def foo
+<span class="line-numbers"> <a href="#n2" name="n2">2</a></span>  raise &quot;bar&quot;
+<span class="line-numbers"> <a href="#n3" name="n3">3</a></span>rescue Integer
+<span class="line-numbers"> <a href="#n4" name="n4">4</a></span>  # do something...
+<span class="line-numbers"> <a href="#n5" name="n5">5</a></span>rescue &quot;bar&quot;
+<span class="line-numbers"> <a href="#n6" name="n6">6</a></span>  :rescued_bar
+<span class="line-numbers"> <a href="#n7" name="n7">7</a></span>rescue e
+<span class="line-numbers"> <a href="#n8" name="n8">8</a></span>  # do something else...
+<span class="line-numbers"> <a href="#n9" name="n9">9</a></span>end
+<span class="line-numbers"><strong><a href="#n10" name="n10">10</a></strong></span>
+<span class="line-numbers"><a href="#n11" name="n11">11</a></span>foo #=&gt; :rescued_bar
+</pre></div>
+</div>
+</div>
+
+<p>The parameter for a rescue clause is just like a normal function parameter. Beyond the type matching shown above, this means that the parameter can be matched against literal values, destructurings, or even value interpolations! Myst’s Spec library makes good use of this to define an <code>expect_raises</code> assertion:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>def expect_raises(expected_error, &amp;block)
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>  block()
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>  raise %AssertionFailure{@name, expected_error, &quot;no error&quot;}
+<span class="line-numbers"><a href="#n4" name="n4">4</a></span>rescue &lt;expected_error&gt;
+<span class="line-numbers"><a href="#n5" name="n5">5</a></span>  # If the raised error matches what was expected, the assertion passes.
+<span class="line-numbers"><a href="#n6" name="n6">6</a></span>rescue received_error
+<span class="line-numbers"><a href="#n7" name="n7">7</a></span>  raise %AssertionFailure{@name, expected_error, received_error}
+<span class="line-numbers"><a href="#n8" name="n8">8</a></span>end
+</pre></div>
+</div>
+</div>
+
+<p>Here, <code>expect_raises</code> calls <code>block</code>, then defines two exception handlers. The first dynamically interpolates the <code>expected_error</code> as the parameter of the rescue, which will only succeed if <code>block</code> raises a matching error, meaning the assertion passes.</p>
+
+<p>Otherwise, the second handler matches any other raised exception, and raises a <em>new</em> failure that the received exception did not match what was actually raised, causing the assertion to fail.</p>
+
+<h2 id="ensure">Ensure</h2>
+
+<p>Sometimes raising an error in a block of code could leave a program in a bad or currupted state. Leaving a file open, not calling a callback function, etc. These are all things that could cause a successful recovery of a program with <code>rescue</code> to actually cause further failure. To help address this, Myst provides <code>ensure</code>.</p>
+
+<p><code>ensure</code> clauses come at the end of a <code>rescue</code> chain (or on their own), and will <em>always</em> be executed, even while panicking up the callstack during a <code>raise</code>; <em>even when the exception has not been rescued</em>.</p>
+
+<p>Here’s a trivial example that shows the semantics of <code>ensure</code>:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"> <a href="#n1" name="n1">1</a></span>@did_ensure = false
+<span class="line-numbers"> <a href="#n2" name="n2">2</a></span>def foo
+<span class="line-numbers"> <a href="#n3" name="n3">3</a></span>  raise &quot;woops&quot;
+<span class="line-numbers"> <a href="#n4" name="n4">4</a></span>  :finished
+<span class="line-numbers"> <a href="#n5" name="n5">5</a></span>rescue Integer
+<span class="line-numbers"> <a href="#n6" name="n6">6</a></span>  :rescued
+<span class="line-numbers"> <a href="#n7" name="n7">7</a></span>ensure
+<span class="line-numbers"> <a href="#n8" name="n8">8</a></span>  @did_ensure = true
+<span class="line-numbers"> <a href="#n9" name="n9">9</a></span>  :ensured
+<span class="line-numbers"><strong><a href="#n10" name="n10">10</a></strong></span>end
+<span class="line-numbers"><a href="#n11" name="n11">11</a></span>
+<span class="line-numbers"><a href="#n12" name="n12">12</a></span>foo #=&gt; :rescued
+<span class="line-numbers"><a href="#n13" name="n13">13</a></span>@did_ensure #=&gt; true
+</pre></div>
+</div>
+</div>
+
+<p>So here’s an interesting caveat. We clearly hit the <code>ensure</code> clause, because <code>@did_ensure</code> got set to true. But, the return value of <code>foo</code> was <code>:rescued</code>. Why? Because <code>ensure</code> <em>cannot</em> affect the return value of a function.</p>
+
+<p>More than anything, this is for logical simplicity when dealing with no errors. Here’s an even simpler example:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>def line_count
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>  f = File.open(&quot;test.txt&quot;)
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>  f.lines.size
+<span class="line-numbers"><a href="#n4" name="n4">4</a></span>ensure
+<span class="line-numbers"><a href="#n5" name="n5">5</a></span>  f.close
+<span class="line-numbers"><a href="#n6" name="n6">6</a></span>end
+</pre></div>
+</div>
+</div>
+
+<p>Here, the use of the <code>ensure</code> block is just to guarantee that the file <code>f</code> gets closed properly. But, we want the return value of the function to be the number of lines in the file.</p>
+
+<p>If <code>ensure</code> <em>did</em> change the return value, we’d have to save the line count into a local variable, then remember to add that variable as the return value after <code>f.close</code> in the <code>ensure</code> clause. Even if we used <code>return f.lines.size</code>, the same problem would occur, since <code>ensure</code> will <em>always</em> run after a function completes.</p>
+
+<p>So, for simplicity, <code>ensure</code> is guaranteed to <em>not</em> affect the return value of a function.</p>
+
+<h2 id="exception-handling-on-non-methods">Exception handling on non-methods</h2>
+
+<p>Beyond exception handling on method definitions, Myst also allows exception handlers to be defined on blocks and anonymous function clauses using the <code>do...end</code> syntax. Since blocks and anonymous functions are semantically equivalent to normal functions, exception handlers work exactly the same way:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"> <a href="#n1" name="n1">1</a></span>block_result = [1, 2, 3].each do |e|
+<span class="line-numbers"> <a href="#n2" name="n2">2</a></span>  raise &quot;woops&quot;
+<span class="line-numbers"> <a href="#n3" name="n3">3</a></span>  e
+<span class="line-numbers"> <a href="#n4" name="n4">4</a></span>rescue
+<span class="line-numbers"> <a href="#n5" name="n5">5</a></span>  :rescued
+<span class="line-numbers"> <a href="#n6" name="n6">6</a></span>end
+<span class="line-numbers"> <a href="#n7" name="n7">7</a></span>
+<span class="line-numbers"> <a href="#n8" name="n8">8</a></span>result #=&gt; :rescued
+<span class="line-numbers"> <a href="#n9" name="n9">9</a></span>
+<span class="line-numbers"><strong><a href="#n10" name="n10">10</a></strong></span>func = fn
+<span class="line-numbers"><a href="#n11" name="n11">11</a></span>  -&gt;(2) do
+<span class="line-numbers"><a href="#n12" name="n12">12</a></span>    raise &quot;woops&quot;
+<span class="line-numbers"><a href="#n13" name="n13">13</a></span>  rescue
+<span class="line-numbers"><a href="#n14" name="n14">14</a></span>    :rescued
+<span class="line-numbers"><a href="#n15" name="n15">15</a></span>  end
+<span class="line-numbers"><a href="#n16" name="n16">16</a></span>end
+<span class="line-numbers"><a href="#n17" name="n17">17</a></span>
+<span class="line-numbers"><a href="#n18" name="n18">18</a></span>func(2) #=&gt; :rescued
+</pre></div>
+</div>
+</div>
+
+<p>Note that exception handlers are <em>not</em> allowed with the brace-block syntax. The result is too visually jarring and is inconsistent with keyword blocks always terminating with an <code>end</code> keyword.</p>
+</div></div></main>

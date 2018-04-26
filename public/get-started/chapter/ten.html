@@ -1,0 +1,162 @@
+<!DOCTYPE html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>Myst - A structured, dynamic, general-purpose language</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" rel="stylesheet" /></head><link href="../styles/get-started/style.css" rel="stylesheet" /><div class="stickybar"><nav class="navbar"><div class="info"><div class="name"><span>Myst</span></div><div class="version"><span>0.0.6</span></div></div><div class="stickylogo"><a href="http://myst-lang.org/"><img height="100%" src="./assets/myst-circle.png" width="100%" /></a></div><ul class="links"><a href="/get-started"><span>Get Started</span></a><a href="http://discord.myst-lang.org/"><span>Community</span></a><a href="https://myst-lang.github.io/myst-docs"><span>Docs</span></a><a href="https://github.com/myst-lang/myst"><span>Github</span></a></ul></nav><div class="hl breaker"></div></div><main><div class="pre code"><div class="navigation-list"><ul>Blocks and Anonymous Functions</ul><ul>Functions and Clauses</ul><ul>Pattern Matching</ul><ul>Exception Handling</ul><ul>Values and Variables</ul><ul>Types and Self</ul><ul>Modules</ul><ul>Loading Code</ul><ul>Flow Control</ul><ul>Basic Operations</ul><ul>introduction</ul></div></div><div class="container"><div class="content"><h1 id="chapter-10-loading-code">Chapter 10: Loading Code</h1>
+
+<p>So far, all of the examples we’ve seen have had their source code live in a single file. But, as a codebase grows, keeping everything in a single file will inevitably get messy.</p>
+
+<p>Splitting code into multiple files makes helps with readability, usability, and traceability (through version control systems such as <code>git</code>).</p>
+
+<h2 id="require">Require</h2>
+
+<p>Myst provides a single way to include code from another file: the <code>require</code> keyword. Using <code>require</code> will instruct the program to search the file system for a file with the name given by its argument.</p>
+
+<p>The argument to a require can be any expression that evaluates to a String:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>require &quot;some_file.mt&quot;
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>base = &quot;folder/path/&quot;
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>require base + &quot;file.mt&quot;
+</pre></div>
+</div>
+</div>
+
+<p>Any expression that does <em>not</em> evaluate to a String will raise an error.</p>
+
+<h3 id="absolute-paths">Absolute paths</h3>
+
+<p>The most strict path specification for a file is an absolute path. These paths start at the root directory of the file system, following the given path to find the target file.</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>require &quot;/home/me/src/foo.mt&quot;
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>require &quot;/etc/scripts/bar.mt&quot;
+</pre></div>
+</div>
+</div>
+
+<p>Any path starting with a forward slash (<code>/</code>) is considered absolute. In almost all cases, absolute paths should be avoided with preference to relative or resource paths, as the code will inherently be less portable. Only use absolute paths for scripts with static locations on the system (basically never).</p>
+
+<h3 id="relative-paths">Relative paths</h3>
+
+<p>Relative paths are the most common paths for requiring code in userland. Relative paths start either with a single (<code>.</code>) or double (<code>..</code>) dot, just like in plain Unix.</p>
+
+<p>Relative paths will be looked up relative to the file that the <code>require</code> is given in, not necessarily the root directory of the project.</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>require &quot;./foo/bar.mt&quot;
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>require &quot;../../lib/util.mt&quot;
+</pre></div>
+</div>
+</div>
+
+<h3 id="resource-paths">Resource paths</h3>
+
+<p>The last type of path that can be given is referred to as a <em>resource path</em>. Resource paths check a number of paths for the existence of a file, starting with the directories given by the <code>MYST_PATH</code> shell environment variable.</p>
+
+<p>If this variable is not set, or if no matching file is found in any of those paths, the current working directory (given by the <code>pwd</code> shell command) will be checked. Finally, the path will be treated as a relative path from the file containing the <code>require</code> expression.</p>
+
+<p>Most often, resource paths are used to load third-party code or stdlib components:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>require &quot;http.mt&quot;
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>require &quot;foo.mt&quot;
+</pre></div>
+</div>
+</div>
+
+<h3 id="reloading-files">Reloading files</h3>
+
+<p>Myst does not currently provide a mechanism for reloading a file. Once a file has been required in a program, it will be remembered, and any future attempts to require it will simply return <code>false</code>.</p>
+
+<p>Files that have already been required are tracked by their <em>absolute path</em>, not necessarily the path that was given in the expression. For example, both of these paths refer to the same file, so only the first <code>require</code> will actually execute:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>require &quot;./foo.mt&quot;
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>require &quot;./bar/baz/../../foo.mt&quot;
+</pre></div>
+</div>
+</div>
+
+<h2 id="file-structure">File Structure</h2>
+
+<p>While there is no enforced file structure for a Myst-based project, there are a few general guidelines that will help keep your codebase easy to navigate and work with.</p>
+
+<h3 id="single-responsibility">Single responsibility</h3>
+
+<p>Much like the <a href="https://en.wikipedia.org/wiki/Single_responsibility_principle">single responsibility principle</a> for modules and classes, each source file should generally have a single responsibility.</p>
+
+<p>Most often, this lines up well with having a single module or type per file, though some deeply connected objects may make more sense in a single file, and a single type may be better spread into multiple files.</p>
+
+<p>Giving each file a single responsibility also helps with naming conventions. In most cases, the file name can just match the name of the type or module it contains. For example:</p>
+
+<div class="language-text highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span># In the file &quot;foo.mt&quot;
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>defmodule Foo
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>end
+<span class="line-numbers"><a href="#n4" name="n4">4</a></span>
+<span class="line-numbers"><a href="#n5" name="n5">5</a></span># In another file, &quot;bar.mt&quot;
+<span class="line-numbers"><a href="#n6" name="n6">6</a></span>defmodule Bar
+<span class="line-numbers"><a href="#n7" name="n7">7</a></span>end
+</pre></div>
+</div>
+</div>
+
+<h3 id="module-folders">Module folders</h3>
+
+<p>When a module contains multiple types or modules within it, each should still be given their own file, but those files should be kept in a folder with the name of the containing module.</p>
+
+<p>If there is any top-level code for the module, a file with the same name can also be given:</p>
+
+<div class="language-text highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"> <a href="#n1" name="n1">1</a></span># Structure:
+<span class="line-numbers"> <a href="#n2" name="n2">2</a></span>#
+<span class="line-numbers"> <a href="#n3" name="n3">3</a></span># root
+<span class="line-numbers"> <a href="#n4" name="n4">4</a></span># |- foo.mt
+<span class="line-numbers"> <a href="#n5" name="n5">5</a></span># \- foo
+<span class="line-numbers"> <a href="#n6" name="n6">6</a></span>#    |- bar.mt
+<span class="line-numbers"> <a href="#n7" name="n7">7</a></span>#    \- baz.mt
+<span class="line-numbers"> <a href="#n8" name="n8">8</a></span>
+<span class="line-numbers"> <a href="#n9" name="n9">9</a></span># In foo.mt
+<span class="line-numbers"><strong><a href="#n10" name="n10">10</a></strong></span>defmodule Foo
+<span class="line-numbers"><a href="#n11" name="n11">11</a></span>  def create
+<span class="line-numbers"><a href="#n12" name="n12">12</a></span>    # ...
+<span class="line-numbers"><a href="#n13" name="n13">13</a></span>  end
+<span class="line-numbers"><a href="#n14" name="n14">14</a></span>end
+<span class="line-numbers"><a href="#n15" name="n15">15</a></span>
+<span class="line-numbers"><a href="#n16" name="n16">16</a></span># In foo/bar.mt:
+<span class="line-numbers"><a href="#n17" name="n17">17</a></span>
+<span class="line-numbers"><a href="#n18" name="n18">18</a></span>defmodule Foo
+<span class="line-numbers"><a href="#n19" name="n19">19</a></span>  deftype Bar
+<span class="line-numbers"><strong><a href="#n20" name="n20">20</a></strong></span>  end
+<span class="line-numbers"><a href="#n21" name="n21">21</a></span>end
+<span class="line-numbers"><a href="#n22" name="n22">22</a></span>
+<span class="line-numbers"><a href="#n23" name="n23">23</a></span># In foo/baz.mt
+<span class="line-numbers"><a href="#n24" name="n24">24</a></span>
+<span class="line-numbers"><a href="#n25" name="n25">25</a></span>defmodule Foo
+<span class="line-numbers"><a href="#n26" name="n26">26</a></span>  defmodule Baz
+<span class="line-numbers"><a href="#n27" name="n27">27</a></span>  end
+<span class="line-numbers"><a href="#n28" name="n28">28</a></span>end
+</pre></div>
+</div>
+</div>
+
+<p>Another way of using the top-level file for a module is to require all of the submodules and types, to simplify the end-user’s experience when requiring the module:</p>
+
+<div class="language-text highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span># In foo.mt
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>defmodule Foo
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>end
+<span class="line-numbers"><a href="#n4" name="n4">4</a></span>
+<span class="line-numbers"><a href="#n5" name="n5">5</a></span>require &quot;./foo/bar.mt&quot;
+<span class="line-numbers"><a href="#n6" name="n6">6</a></span>require &quot;./foo/baz.mt&quot;
+</pre></div>
+</div>
+</div>
+
+<p>With this pattern, end-users can simply require the <code>foo.mt</code> file and get all of the submodules included automatically:</p>
+
+<div class="language-text highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>require &quot;./foo.mt&quot;
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>%Foo.Bar{} #=&gt; new Bar instance
+</pre></div>
+</div>
+</div>
+</div></div></main>

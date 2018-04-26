@@ -1,0 +1,71 @@
+<!DOCTYPE html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>Myst - A structured, dynamic, general-purpose language</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" rel="stylesheet" /></head><link href="../styles/get-started/style.css" rel="stylesheet" /><div class="stickybar"><nav class="navbar"><div class="info"><div class="name"><span>Myst</span></div><div class="version"><span>0.0.6</span></div></div><div class="stickylogo"><a href="http://myst-lang.org/"><img height="100%" src="./assets/myst-circle.png" width="100%" /></a></div><ul class="links"><a href="/get-started"><span>Get Started</span></a><a href="http://discord.myst-lang.org/"><span>Community</span></a><a href="https://myst-lang.github.io/myst-docs"><span>Docs</span></a><a href="https://github.com/myst-lang/myst"><span>Github</span></a></ul></nav><div class="hl breaker"></div></div><main><div class="pre code"><div class="navigation-list"><ul>Blocks and Anonymous Functions</ul><ul>Functions and Clauses</ul><ul>Pattern Matching</ul><ul>Exception Handling</ul><ul>Values and Variables</ul><ul>Types and Self</ul><ul>Modules</ul><ul>Loading Code</ul><ul>Flow Control</ul><ul>Basic Operations</ul><ul>introduction</ul></div></div><div class="container"><div class="content"><h1 id="an-introduction-to-myst">An Introduction to Myst</h1>
+
+<p>Welcome! In this guide, we’ll be going through a tour of the Myst language, including syntax, terminology, some of the standard library, best practices, and more.</p>
+
+<p>All of that will be covered in the sections that follow. This section, however, is focused on laying a foundation for the rest of the guide to build upon.</p>
+
+<h2 id="installing-myst">Installing Myst</h2>
+
+<p>If you’d like to follow along and try out the sample code provided throughout this guide, you’ll need to have Myst installed on your machine. See the <a href="https://github.com/myst-lang/myst#installation">Installation guide</a> for details on how to get set up.</p>
+
+<p>Note that Myst currently does not work on Windows machines. This has to do with how the language is implemented, and is something that is actively being worked on. Sorry to all the Windows users out there. Hopefully we will have an update for you soon.</p>
+
+<h2 id="sample-code">Sample Code</h2>
+
+<p>Throughout this guide, you’ll see a lot of code samples that you should be able to copy and run for yourself to try things out. For example:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>IO.puts(&quot;Hello, world!&quot;)
+</pre></div>
+</div>
+</div>
+
+<p>In more complex code samples, or where it is otherwise helpful, you may see lines with <code>#</code> at the beginning of them. These are comments that have no impact on the code itself, but simply provide some context or description for the reader. For example:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span># Something describing the line below
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>some_line(of, code)
+</pre></div>
+</div>
+</div>
+
+<p>Most commonly, this is used to indicate alternatives. In these cases, the comment will normally say “Or”, meaning that the code above coulde be used interchangeably with the code below the comment:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>1 + 2 + 3
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span># Or
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>2 * 3
+</pre></div>
+</div>
+</div>
+
+<p>In a lot of cases, where a particular value is expected, you’ll also see a <code>#=&gt;</code> followed by some text inside the code sample. This is meant to help indicate the expected behavior of the code. For example:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>1 + 2 #=&gt; 3
+</pre></div>
+</div>
+</div>
+
+<p>This sample shows that the expected result of <code>1 + 2</code> is <code>3</code>. Note that this style doesn’t actually have any effect in the code (the <code>#</code> indicates that the rest of the line is a comment), and is simply a helpful tool, particularly for complex examples.</p>
+
+<h2 id="reference-notation">Reference notation</h2>
+
+<p>You may also see expressions like <code>List#push</code> or <code>IO.puts</code> in paragraphs or comments throughout this guid. This notation refers to a function that is contained within some type or module. These references all follow a consistent format, where a <code>#</code> between the module and the name indicates an <em>instance method</em>, while a <code>.</code> indicates a <em>static method</em>.</p>
+
+<p>These concepts will be explained in more detail later on, but the basic premise is that <em>instance methods</em> are called on an instance of a type (for example, <code>1</code> is an instance of the <code>Integer</code> type), while <em>static methods</em> are called directly on the type itself.</p>
+
+<h2 id="asking-questions">Asking Questions</h2>
+
+<p>This guide isn’t perfect, and makes some assumptions about prior knowledge that might not be accurate for everyone, but that’s okay! Having questions and asking them is an important part of learning.</p>
+
+<p>If you do have a question, the best place to ask is in the <a href="http://discord.myst-lang.org/">Myst Language discord server</a>. There’s an entire channel dedicated to asking questions, and an entire community to help answer them.</p>
+
+<p>The questions people ask are an important part in helping us improve this guide. So, no matter how simple your question may feel, <em>ask it anyway</em>.</p>
+
+<hr />
+
+<p>With all that out of the way, let’s get started! Head on to <a href="/get-started/chapter1.html">Chapter 1</a> whenever you’re ready.</p>
+
+<p>Welcome to Myst!</p>
+</div></div></main>

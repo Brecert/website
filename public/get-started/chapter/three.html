@@ -1,0 +1,215 @@
+<!DOCTYPE html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>Myst - A structured, dynamic, general-purpose language</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" rel="stylesheet" /></head><link href="../styles/get-started/style.css" rel="stylesheet" /><div class="stickybar"><nav class="navbar"><div class="info"><div class="name"><span>Myst</span></div><div class="version"><span>0.0.6</span></div></div><div class="stickylogo"><a href="http://myst-lang.org/"><img height="100%" src="./assets/myst-circle.png" width="100%" /></a></div><ul class="links"><a href="/get-started"><span>Get Started</span></a><a href="http://discord.myst-lang.org/"><span>Community</span></a><a href="https://myst-lang.github.io/myst-docs"><span>Docs</span></a><a href="https://github.com/myst-lang/myst"><span>Github</span></a></ul></nav><div class="hl breaker"></div></div><main><div class="pre code"><div class="navigation-list"><ul>Blocks and Anonymous Functions</ul><ul>Functions and Clauses</ul><ul>Pattern Matching</ul><ul>Exception Handling</ul><ul>Values and Variables</ul><ul>Types and Self</ul><ul>Modules</ul><ul>Loading Code</ul><ul>Flow Control</ul><ul>Basic Operations</ul><ul>introduction</ul></div></div><div class="container"><div class="content">
+<h1 id="chapter-3-flow-control">Chapter 3: Flow Control</h1>
+
+<p>Flow control is the act of controlling the execution of code based on some set of conditions. Myst provides two native methods of flow control - conditionals and loops.</p>
+
+<h2 id="conditionals">Conditionals</h2>
+
+<p>Conditional expressions indicate that the code in the body of the expression should only be evaluated if the given condition is met. Conditionals can also provide alternative bodies and conditions to evaluate if the original condition is not met.</p>
+
+<h3 id="when">When</h3>
+
+<p>Unlike most popular languages, Myst does not have an <code>if</code> expression. Instead the same concept is expressed using the keyword <code>when</code>. For example, the Ruby code:</p>
+
+<div class="language-ruby highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span><span style="color:#080;font-weight:bold">if</span> <span style="color:#00D">1</span> &lt; <span style="color:#00D">2</span>
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>  <span style="color:#777"># ...</span>
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span><span style="color:#080;font-weight:bold">end</span>
+</pre></div>
+</div>
+</div>
+
+<p>would be written in Myst as:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>when 1 &lt; 2
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>  # ...
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>end
+</pre></div>
+</div>
+</div>
+
+<p>Whether the body of a <code>when</code> expression is evaluated depends on the truthiness of the condition. As covered previously, only <code>nil</code> and <code>false</code> are considered falsey, and so any other value would result in the condition being satisfied, thus evaluating the body.</p>
+
+<p>If a <code>when</code> expression’s condition is satisfied, the result of the expression is the value of the last expression in the body. If it is not, the result will be <code>nil</code>.</p>
+
+<p>In languages with <code>if</code> expressions, there is often also a mechanism for providing an alternative to execute when the condition is not met. Most often, this uses the <code>else</code> keyword. Myst follows suit, so the following will return <code>"condition was not met"</code>:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>when 1 &gt; 2
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>  &quot;condition was met&quot;
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>else
+<span class="line-numbers"><a href="#n4" name="n4">4</a></span>  &quot;condition was not met&quot;
+<span class="line-numbers"><a href="#n5" name="n5">5</a></span>end
+</pre></div>
+</div>
+</div>
+
+<p>In addition to this, most languages also provide a way to define other conditions for the alternatives. For example, Ruby has <code>elsif</code>:</p>
+
+<div class="language-ruby highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span><span style="color:#080;font-weight:bold">if</span> <span style="color:#00D">1</span> &gt; <span style="color:#00D">2</span>
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>  <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">1 is more than 2</span><span style="color:#710">&quot;</span></span>
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span><span style="color:#080;font-weight:bold">elsif</span> <span style="color:#00D">1</span> == <span style="color:#00D">2</span>
+<span class="line-numbers"><a href="#n4" name="n4">4</a></span>  <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">1 is equal to 2</span><span style="color:#710">&quot;</span></span>
+<span class="line-numbers"><a href="#n5" name="n5">5</a></span><span style="color:#080;font-weight:bold">else</span>
+<span class="line-numbers"><a href="#n6" name="n6">6</a></span>  <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">no condition was met</span><span style="color:#710">&quot;</span></span>
+<span class="line-numbers"><a href="#n7" name="n7">7</a></span><span style="color:#080;font-weight:bold">end</span>
+</pre></div>
+</div>
+</div>
+
+<p>In Myst, however, multiple conditions can be chained together simply by using the <code>when</code> keyword again. So, in Myst, the above would be written as:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>when 1 &gt; 2
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>  &quot;1 is more than 2&quot;
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>when 1 == 2
+<span class="line-numbers"><a href="#n4" name="n4">4</a></span>  &quot;1 is equal to 2&quot;
+<span class="line-numbers"><a href="#n5" name="n5">5</a></span>else
+<span class="line-numbers"><a href="#n6" name="n6">6</a></span>  &quot;no condition was met&quot;
+<span class="line-numbers"><a href="#n7" name="n7">7</a></span>end
+</pre></div>
+</div>
+</div>
+
+<p>This is the primary motivation for using <code>when</code> instead of <code>if</code>. By re-using the same keyword for all conditional expressions, even when defining alternatives for another condition, the code is kept more visually-aligned.</p>
+
+<p>All of the conditions being evaluated start in the same column, meaning the code can be scanned more quickly, and avoids having a jagged pattern, as in the Ruby version above.</p>
+
+<p>The condition for a <code>when</code> expression can be any other expression. For example, a common usage will have query method calls as the condition:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>when some_string.empty?
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>  # ...
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>end
+</pre></div>
+</div>
+</div>
+
+<p>For clarity, the examples in the rest of this chapter will continue to use comparison operators, but anywhere a condition is given, know that it could also be a method call, standalone variable or literal, or any other valid expression.</p>
+
+<h3 id="unless">Unless</h3>
+
+<p>Myst also provides an <code>unless</code> keyword to define an “inverse condition”. In other words, where a <code>when</code> expression would evaluate its body when the condition is truthy, an <code>unless</code> expression evaluates its body when the condition is falsey.</p>
+
+<p><code>unless</code> expressions can stand on their own, or be mixed into <code>when</code> chains to more cleanly define behavior:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>unless true == false
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>  &quot;true was not equal to false&quot;
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>end
+</pre></div>
+</div>
+</div>
+
+<h3 id="nesting">Nesting</h3>
+
+<p>Because of the chaining behavior of conditional expressions, it is not possible to directly nest a conditional within another conditional. For example, this code:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"> <a href="#n1" name="n1">1</a></span>when x &gt; 2
+<span class="line-numbers"> <a href="#n2" name="n2">2</a></span>  when x == 3
+<span class="line-numbers"> <a href="#n3" name="n3">3</a></span>    # ...
+<span class="line-numbers"> <a href="#n4" name="n4">4</a></span>  else
+<span class="line-numbers"> <a href="#n5" name="n5">5</a></span>    # ...
+<span class="line-numbers"> <a href="#n6" name="n6">6</a></span>  end
+<span class="line-numbers"> <a href="#n7" name="n7">7</a></span>else
+<span class="line-numbers"> <a href="#n8" name="n8">8</a></span>  # ...
+<span class="line-numbers"> <a href="#n9" name="n9">9</a></span>end
+</pre></div>
+</div>
+</div>
+
+<p>is not valid. In fact, it will actually cause a parse error. Despite what the indentation suggests, the above is actually parsed as a single when chain with two conditionals (<code>x &gt; 2</code> and <code>x == 3</code>) and an <code>else</code>. So, when the parser sees the first <code>end</code>, the chain is ended, but then the parser sees an <code>else</code> that it doesn’t expect.</p>
+
+<p>This design is intentional. Directly nesting conditionals naturally leads to high complexity and can quickly become confusing. Forcing all conditional expressions to appear in a flat chain makes the path to complexity much less natural, and pushes for better code refactoring into smaller, simpler components.</p>
+
+<p>However, if a nested conditional is <em>truly</em> necessary, it is possible to use parentheses around the inner conditional to avoid ambiguity. The above example could then be written as:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"> <a href="#n1" name="n1">1</a></span>when x &gt; 2
+<span class="line-numbers"> <a href="#n2" name="n2">2</a></span>  (when x == 3
+<span class="line-numbers"> <a href="#n3" name="n3">3</a></span>    # ...
+<span class="line-numbers"> <a href="#n4" name="n4">4</a></span>  else
+<span class="line-numbers"> <a href="#n5" name="n5">5</a></span>    # ...
+<span class="line-numbers"> <a href="#n6" name="n6">6</a></span>  end)
+<span class="line-numbers"> <a href="#n7" name="n7">7</a></span>else
+<span class="line-numbers"> <a href="#n8" name="n8">8</a></span>  # ...
+<span class="line-numbers"> <a href="#n9" name="n9">9</a></span>end
+</pre></div>
+</div>
+</div>
+
+<p>This is not recommended, and is really just a side effect of how the language is parsed. A more proper refactoring of this code would look like this:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>when x == 3
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>  # ...
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>when x &gt; 2
+<span class="line-numbers"><a href="#n4" name="n4">4</a></span>  # ...
+<span class="line-numbers"><a href="#n5" name="n5">5</a></span>else
+<span class="line-numbers"><a href="#n6" name="n6">6</a></span>  # ...
+<span class="line-numbers"><a href="#n7" name="n7">7</a></span>end
+</pre></div>
+</div>
+</div>
+
+<h2 id="loops">Loops</h2>
+
+<p>Loops execute blocks of code repeatedly based on a conditional value that is evaluated before each iteration.</p>
+
+<p>Myst only provides two unbounded looping constructs, <code>while</code> and <code>until</code>. Notably, there are no <em>bounded-iteration constructs</em> (e.g., a <code>for</code> loop). The general use case of a <code>for</code> loop in most languages is to iterate elements in a collection, but the general preference in Myst is to use <code>.each</code> for these iterations.</p>
+
+<p>We’ll see some examples of bounded iteration later on in the Modules section.</p>
+
+<h3 id="while">While</h3>
+
+<p>A <code>while</code> expression is used to execute a block of code repeatedly until the condition is not met. For example:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>n = 0
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>while n &lt; 10
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>  # do some work
+<span class="line-numbers"><a href="#n4" name="n4">4</a></span>  n += 1
+<span class="line-numbers"><a href="#n5" name="n5">5</a></span>end
+</pre></div>
+</div>
+</div>
+
+<p>The above code would execute 10 times, after which the condition <code>n &lt; 10</code> would be false, and looping would stop.</p>
+
+<p>Unlike conditional expressions, loop expressions cannot be chained or define alternatives. Each expression is considered independent of the others, which also means that loop expressions can be nested without any extra syntax:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"> <a href="#n1" name="n1">1</a></span>a = 1
+<span class="line-numbers"> <a href="#n2" name="n2">2</a></span>while a &lt; 10
+<span class="line-numbers"> <a href="#n3" name="n3">3</a></span>  b = 1
+<span class="line-numbers"> <a href="#n4" name="n4">4</a></span>  while b &lt; 10
+<span class="line-numbers"> <a href="#n5" name="n5">5</a></span>    # this will execute 100 times.
+<span class="line-numbers"> <a href="#n6" name="n6">6</a></span>    b += 1
+<span class="line-numbers"> <a href="#n7" name="n7">7</a></span>  end
+<span class="line-numbers"> <a href="#n8" name="n8">8</a></span>
+<span class="line-numbers"> <a href="#n9" name="n9">9</a></span>  # this will execute 10 times.
+<span class="line-numbers"><strong><a href="#n10" name="n10">10</a></strong></span>  a += 1
+<span class="line-numbers"><a href="#n11" name="n11">11</a></span>end
+</pre></div>
+</div>
+</div>
+
+<h3 id="until">Until</h3>
+
+<p>Similar to how <code>unless</code> is the inverse of <code>when</code>, <code>until</code> is the inverse of <code>while</code>. Its body will be executed repeatedly until the condition <em>is</em> met. The first example of <code>while</code> could be re-written with <code>until</code> like so:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>n = 0
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>until n &gt;= 10
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>  # do some work
+<span class="line-numbers"><a href="#n4" name="n4">4</a></span>  n += 1
+<span class="line-numbers"><a href="#n5" name="n5">5</a></span>end
+</pre></div>
+</div>
+</div>
+
+<p><code>until</code> (and <code>unless</code>) are provided as a convenience for more clearly showing the intent of a flow control expression. As such, they should be used sparingly, and only when the expression reads more easily when used.</p>
+</div></div></main>

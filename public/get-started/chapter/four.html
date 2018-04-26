@@ -1,0 +1,95 @@
+<!DOCTYPE html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>Myst - A structured, dynamic, general-purpose language</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" rel="stylesheet" /></head><link href="../styles/get-started/style.css" rel="stylesheet" /><div class="stickybar"><nav class="navbar"><div class="info"><div class="name"><span>Myst</span></div><div class="version"><span>0.0.6</span></div></div><div class="stickylogo"><a href="http://myst-lang.org/"><img height="100%" src="./assets/myst-circle.png" width="100%" /></a></div><ul class="links"><a href="/get-started"><span>Get Started</span></a><a href="http://discord.myst-lang.org/"><span>Community</span></a><a href="https://myst-lang.github.io/myst-docs"><span>Docs</span></a><a href="https://github.com/myst-lang/myst"><span>Github</span></a></ul></nav><div class="hl breaker"></div></div><main><div class="pre code"><div class="navigation-list"><ul>Blocks and Anonymous Functions</ul><ul>Functions and Clauses</ul><ul>Pattern Matching</ul><ul>Exception Handling</ul><ul>Values and Variables</ul><ul>Types and Self</ul><ul>Modules</ul><ul>Loading Code</ul><ul>Flow Control</ul><ul>Basic Operations</ul><ul>introduction</ul></div></div><div class="container"><div class="content"><h1 id="chapter-4-pattern-matching">Chapter 4: Pattern Matching</h1>
+
+<p>Pattern matching is a powerful method of making assertions on values, and decomposing them into smaller parts to pluck out what is important.</p>
+
+<h2 id="match-operator">Match operator</h2>
+
+<p>Myst provides the “match” operator, <code>=:</code>, to perform pattern matching anywhere. When a match fails, an error is raised and execution is stopped to handle the error.</p>
+
+<p>Most commonly, the match operator is used to decompose collections that are returned from methods:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>[a, b, c] =: [1, 2, 3]
+</pre></div>
+</div>
+</div>
+
+<h2 id="splat-collectors">Splat collectors</h2>
+
+<p>When pattern matching with lists, a common operation is plucking a single element out of the list. The normal way of doing this in most languages is to get the list, then access the first element separately:</p>
+
+<div class="language-ruby highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>list = method_that_returns_a_list
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>element = list[<span style="color:#00D">0</span>]
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span><span style="color:#777"># Or, in one line:</span>
+<span class="line-numbers"><a href="#n4" name="n4">4</a></span>element = method_that_returns_a_list[<span style="color:#00D">0</span>]
+</pre></div>
+</div>
+</div>
+
+<p>Because list matches are exhaustive, doing this with a pattern match would require knowing how long the list would be, or doing the long hand method of getting the list, then getting the element separately.</p>
+
+<p>Thankfully, Myst provides an easier way of plucking specific values out of lists (even if the length of the list is unknown), using what’s called a “splat collector”.</p>
+
+<p>Similar to the splat <em>operator</em> (<code>*</code>) covered earlier that expands a single list into multiple individual values, a splat <em>collector</em> does the opposite; it collects multiple indivual values into a single list. When combined with list decomposition via pattern matching, getting any value (even more than one) out of a list is easy. For example, to get the first element of an arbitrary-length list as in the examples above, use a splat at the end of the list pattern:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>[element, *_] =: method_that_returns_a_list
+</pre></div>
+</div>
+</div>
+
+<p>Using an Underscore for the splat just indicates that we don’t intend to use the value that is collected by the match.</p>
+
+<p>Splat collectors can appear at any point in a list pattern, but only one may be given. For example, to get the <em>last</em> element of a list, simply put the splat collector first:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>[*_, element] =: method_that_returns_a_list
+</pre></div>
+</div>
+</div>
+
+<p>Or, to get both the first and last element of the list, put it in the middle:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>[first, *_, last] =: method_that_returns_a_list
+</pre></div>
+</div>
+</div>
+
+<p>Another use case of splat collectors is getting the remaining values in a list for use later on. In this case, just replace the Underscore used above with a normal variable. For example:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>[head, *tail] =: method_that_returns_a_list
+</pre></div>
+</div>
+</div>
+
+<p>This is great for more functional-style programming, where lists are essentially treated as “cons cells” (like linked lists).</p>
+
+<h2 id="matching-literal-values">Matching literal values</h2>
+
+<p>While using pattern matching for decomposition is useful, the most common use case is to assert that a <em>value</em> matches a specific <em>pattern</em> (hence the name). To do this, the pattern can provide literal values that the right hand side will be expected to match.</p>
+
+<p>For example, combined with a splat collector, checking that a list starts with a <code>1</code> is easy:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>[1, *_] =: some_list
+</pre></div>
+</div>
+</div>
+
+<h2 id="matching-types">Matching types</h2>
+
+<p>Another form of pattern matching is checking the type of a value. Just like how literals can be used in patterns, specifying a type will check that the value at that position is of the given type.</p>
+
+<p>For example, checking that the result of a method is an integer value can be done with:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>Integer =: method_that_should_return_an_integer
+</pre></div>
+</div>
+</div>
+
+<p>Matching types may not seem useful for now, but later on, we’ll see how type matching can be used to clean up function definitions and other conditional logic.</p>
+</div></div></main>

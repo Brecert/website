@@ -1,0 +1,51 @@
+max_width_medium = 650px
+max_width_small = 400px
+max_width_big = 920px
+
+::selection
+  background: rgba(#85, 0.5)
+
+html
+  font-family var(--font-sans)
+  line-height: 1.7em
+    
+a
+  color currentColor
+  text-decoration none
+a:hover
+  	color var(--header-color)
+  	text-decoration underline
+
+.code
+  padding 15px
+  border-left 3px solid var(--border-color)
+  
+code, .code
+  background: var(--code-bg-color)
+  color: var(--code-color)
+code
+  padding 5px
+  opacity 0.75
+  font-family: var(--font-monospace)
+  
+pre
+  padding: 0
+  margin: 0
+  
+// Fake <hl> element
+// More style.
+.hl
+  position relative
+  left 50%
+  transform translateX(-50%)
+  width 100%
+  height 1px
+  background black
+  margin none
+  padding none
+  
+main
+  // Container is here for future use if we want main as a background or something and we don't want to scale container.
+  .container
+    width var(--navbar-width)
+    margin auto

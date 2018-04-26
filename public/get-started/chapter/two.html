@@ -1,0 +1,286 @@
+<!DOCTYPE html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>Myst - A structured, dynamic, general-purpose language</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" rel="stylesheet" /></head><link href="../styles/get-started/style.css" rel="stylesheet" /><div class="stickybar"><nav class="navbar"><div class="info"><div class="name"><span>Myst</span></div><div class="version"><span>0.0.6</span></div></div><div class="stickylogo"><a href="http://myst-lang.org/"><img height="100%" src="./assets/myst-circle.png" width="100%" /></a></div><ul class="links"><a href="/get-started"><span>Get Started</span></a><a href="http://discord.myst-lang.org/"><span>Community</span></a><a href="https://myst-lang.github.io/myst-docs"><span>Docs</span></a><a href="https://github.com/myst-lang/myst"><span>Github</span></a></ul></nav><div class="hl breaker"></div></div><main><div class="pre code"><div class="navigation-list"><ul>Blocks and Anonymous Functions</ul><ul>Functions and Clauses</ul><ul>Pattern Matching</ul><ul>Exception Handling</ul><ul>Values and Variables</ul><ul>Types and Self</ul><ul>Modules</ul><ul>Loading Code</ul><ul>Flow Control</ul><ul>Basic Operations</ul><ul>introduction</ul></div></div><div class="container"><div class="content"><h1 id="chapter-2-basic-operations">Chapter 2: Basic Operations</h1>
+
+<p>With the knowledge of values and how they are managed, let’s look at some ways that they can be manipulated.</p>
+
+<p>Almost all of the basic operators are actually defined as methods on the types of objects. For example, the expression <code>1 + 2</code> calls the <code>+</code> method on the value <code>1</code>, with <code>2</code> as an argument. This method-based approach means that these operators can be overridden on any type at any time.</p>
+
+<p>The examples in this section will almost exclusively use literal values to clearly show the types involved in the operations, but all of the operators can be used with variables or sometimes even types or modules instead with the same effects.</p>
+
+<h2 id="mathematic-operations">Mathematic operations</h2>
+
+<p>Most primitive values define the basic arithmetic operations, <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, and <code>%</code>. Some examples:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>1 + 1       #=&gt; 2
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>2.6 + 3.8   #=&gt; 6.4
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>10 * 10     #=&gt; 100
+<span class="line-numbers"><a href="#n4" name="n4">4</a></span>120 % 100   #=&gt; 20
+<span class="line-numbers"><a href="#n5" name="n5">5</a></span>&quot;h&quot; + &quot;i&quot;   #=&gt; &quot;hi&quot;
+</pre></div>
+</div>
+</div>
+
+<p>Collections also implement some operations like <code>+</code>:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>[1, 2] + [3, 4] #=&gt; [1, 2, 3, 4]
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>{a: 1} + {b: 2} #=&gt; {a: 1, b: 2}
+</pre></div>
+</div>
+</div>
+
+<p>For Maps, keys are unique, so adding two Maps that contain the same key will give the key in the result the value of the second Map. For example:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>{a: 1, b: 2} + {a: 2, c: 3}
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>#=&gt; {a: 2, b: 2, c: 3}
+</pre></div>
+</div>
+</div>
+
+<p>This can be useful for quickly applying default values to a Map, but may also lead to some unexpected behavior if it is not understood beforehand.</p>
+
+<p>Most value types define a number of other mathematic operations, such as <code>String#*</code> and <code>List#-</code>. There are too many to cover comprehensively in this guide, so be sure to check the documentation for a more complete look at the operations that are available.</p>
+
+<h2 id="collection-access">Collection access</h2>
+
+<p>To access individual values within a collection, Myst provides <em>access notation</em> via square braces (<code>[</code> and <code>]</code>) with an index argument between them:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>list = [1, 2, 3]
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>list[0] #=&gt; 1
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>map = {a: 1, b: 2}
+<span class="line-numbers"><a href="#n4" name="n4">4</a></span>map[:b] #=&gt; 2
+</pre></div>
+</div>
+</div>
+
+<p>Lists use zero-based indexing, meaning the first element of a List is at position <code>0</code>, and the last element of the List is at position <code>n-1</code>, where <code>n</code> is the number of elements in the List.</p>
+
+<p>In a List, the index argument is generally only allowed to be an Integer. For Maps, the index can be any type, but will generally be a Symbol, following the preference that Map keys should use Symbols.</p>
+
+<p>In any case, if the element at the given index does not exist (e.g., the key is not in the Map, of the index is past the end of a List), the access will return <code>nil</code>.</p>
+
+<p>It is also possible to directly assign an individual element of a collection using <em>access-assignment notation</em>. This looks just like a collection access used as the target of an assignment. For example:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>list = [1, 2, 3]
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>list[0] = 4
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>list #=&gt; [4, 2, 3]
+</pre></div>
+</div>
+</div>
+
+<p>Notice that this directly modifies the collection itself, but is not considered an assignment <em>to</em> the collection.</p>
+
+<h2 id="logical-operations-and-truthiness">Logical operations and truthiness</h2>
+
+<p>Myst provides two native logical operations, “or” (<code>||</code>) and “and” (<code>&amp;&amp;</code>). These operate based on the truthiness of the first operand. The result of a logical operation is the value that determined the action taken by the operation - no conversions to Booleans or other operations are done to the value.</p>
+
+<p>All values are considered truthy unless they are either <code>nil</code> or <code>false</code>. This means that, unlike some languages such as C or JavaScript, <code>0</code>, <code>[]</code>, <code>{}</code>, and <code>""</code> are <em>all</em> consider truthy.</p>
+
+<p>Logical operations in Myst are also short-circuiting, meaning that the right side operand will only be evaluated if the left side operand does not satisfy the operation. For an Or operation, that is when the left side operand is falsey, or truthy for an And operation.</p>
+
+<p>Below are some examples of logical operations and the results they would yield.</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"> <a href="#n1" name="n1">1</a></span>false || false  #=&gt; false
+<span class="line-numbers"> <a href="#n2" name="n2">2</a></span>false || true   #=&gt; true
+<span class="line-numbers"> <a href="#n3" name="n3">3</a></span>true  || false  #=&gt; true
+<span class="line-numbers"> <a href="#n4" name="n4">4</a></span>1     || 2      #=&gt; 1
+<span class="line-numbers"> <a href="#n5" name="n5">5</a></span>nil   || 2      #=&gt; 2
+<span class="line-numbers"> <a href="#n6" name="n6">6</a></span>false &amp;&amp; false  #=&gt; false
+<span class="line-numbers"> <a href="#n7" name="n7">7</a></span>false &amp;&amp; true   #=&gt; false
+<span class="line-numbers"> <a href="#n8" name="n8">8</a></span>true  &amp;&amp; false  #=&gt; false
+<span class="line-numbers"> <a href="#n9" name="n9">9</a></span>true  &amp;&amp; true   #=&gt; true
+<span class="line-numbers"><strong><a href="#n10" name="n10">10</a></strong></span>nil   &amp;&amp; 2      #=&gt; nil
+<span class="line-numbers"><a href="#n11" name="n11">11</a></span>[]    &amp;&amp; true   #=&gt; false
+</pre></div>
+</div>
+</div>
+
+<p>It’s worth noting that since there are two falsey values, the result of a failed logical operation (one that is not satisfied) can be <em>either</em> <code>nil</code> or <code>false</code>, but no other value. For example:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>[] &amp;&amp; false   #=&gt; false
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>false || nil  #=&gt; nil
+</pre></div>
+</div>
+</div>
+
+<p>Unlike most other operators in Myst, <code>||</code> and <code>&amp;&amp;</code> are native to the language, and cannot be overridden. Operators that <em>are</em> overridable have a receiver (the left) and an argument (the right), but the logical operators are defined by the two operands equally. Because of that, it does not make sense for logical operations to be overridable.</p>
+
+<h2 id="comparison-operations">Comparison operations</h2>
+
+<p>Myst provides all of the common comparison operators: <code>&lt;</code>, <code>&lt;=</code>, <code>==</code>, <code>!=</code>, <code>&gt;=</code>, and <code>&gt;</code>. These operations <em>should</em> always return a boolean value, but can be changed by overridden behavior.</p>
+
+<p>All types define <code>==</code> and <code>!=</code>. These are also the only comparison operations that booleans and <code>nil</code> define by default.</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>true == false #=&gt; false
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>true != false #=&gt; true
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>nil  == nil    #=&gt; true
+<span class="line-numbers"><a href="#n4" name="n4">4</a></span>nil  == false  #=&gt; false
+</pre></div>
+</div>
+</div>
+
+<p>An important thing to note in the example above is that <code>nil</code> will only ever be equal to <code>nil</code>. The fact that <code>nil</code> and <code>false</code> are both falsey does not apply to equality operations.</p>
+
+<p>Equality operations are always based on values rather than object ids, as in Java and other similar languages. That means there should never be a concern about using <code>.equals</code> or <code>.eql</code> or other special methods instead of <code>==</code> for things like Strings.</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>&quot;hello&quot; == &quot;hello&quot; #=&gt; true
+</pre></div>
+</div>
+</div>
+
+<p>The remainder of the comparison operators are implemented selectively for each type.  For numeric types, the default implementations for all of these operators all perform their mathematic definition:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>1  &lt;  2       #=&gt; true
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>10 == 20      #=&gt; false
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>5  &gt;= 5.4     #=&gt; false
+</pre></div>
+</div>
+</div>
+
+<p>Operations between a Float and an Integer operand on either side will also work as expected.</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>1.0 == 1      #=&gt; true
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>1   == 1.1    #=&gt; false
+</pre></div>
+</div>
+</div>
+
+<p>Collection types also implement <code>&lt;</code> and <code>&lt;=</code> to check whether the left side is a subset of the right side. Specifically, <code>&lt;</code> is a <em>proper subset</em> check, meaning the right side must be a larger collection than the left side, while <code>&lt;=</code> also allows the collections to be equal. The order of elements in the collection is not important for either of these operations.</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>[1, 2] &lt;  [1, 2]        #=&gt; false
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>[2, 1] &lt;= [1, 2]        #=&gt; true
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>{b: 2} &lt;  {a: 1, b: 2}  #=&gt; true
+</pre></div>
+</div>
+</div>
+
+<h2 id="unary-operations">Unary operations</h2>
+
+<p>Unary operations are operations with a single operand (the receiver), and are always written as prefixes for the operand. The three unary operations supported by Myst are <code>!</code>, <code>-</code>, and <code>*</code>, any combination of which can be chained together.</p>
+
+<p><code>!</code> performs a logical “not” on the operand. Truthy values become <code>false</code>, while falsey values become <code>true</code>. The result is always a Boolean. For example:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>!true   #=&gt; false
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>!false  #=&gt; true
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>!nil    #=&gt; true
+<span class="line-numbers"><a href="#n4" name="n4">4</a></span>![]     #=&gt; false
+<span class="line-numbers"><a href="#n5" name="n5">5</a></span>!!100   #=&gt; true
+</pre></div>
+</div>
+</div>
+
+<p>The last line above is an example of a “double not”. This is a common pattern for quickly getting the truthiness of a value as a Boolean.</p>
+
+<p>The unary version of <code>-</code> is a negation. For numeric types, this is essentially equivalent to the binary operation with <code>0</code> as the receiver (i.e., <code>-2</code> is the same as <code>0 - 2</code>).</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>a = 100
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>-a        #=&gt; -100
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>--a       #=&gt; 100
+</pre></div>
+</div>
+</div>
+
+<p>Again, <code>-</code> can be chained to perform “double negation”, though this is not immediately useful with any of the native types.</p>
+
+<p>Finally, <code>*</code> is known the “splat” operator. Usage of the splat operator goes far beyond unary operation usage, and will be further explained in later sections, but the general idea of the operation is to return a List representation of the operand.</p>
+
+<p>For example, <code>Map#*</code> returns a List of 2-element Lists with keys as the first elements and values as the second elements. For example:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>*{a: 1, b: 2} #=&gt; [[:a, 1], [:b, 2]]
+</pre></div>
+</div>
+</div>
+
+<p>The splat operator for a List (at least as a unary operation) will simply return the List itself.</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>*[1, 2, 3] #=&gt; [1, 2, 3]
+</pre></div>
+</div>
+</div>
+
+<p>There generally are not many use cases for the splat operator as a unary operation. It is much more commonly used in the special cases described later on, namely in pattern matching and expanding arguments for functions.</p>
+
+<h2 id="operational-assignment">Operational assignment</h2>
+
+<p>As mentioned in the previous chapter, Myst provides a shorthand to perform an operation on a variable and assign it back into the same variable, known as <em>operational assignment</em>.</p>
+
+<p>Operational assignments take the form <code>op=</code>, where <code>op</code> is the operator to apply before re-assigning the variable. The semantic expansion of operational assignments goes from <code>a op= b</code> to <code>a = a op b</code>. Some examples:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>a = 1
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>a += 2  #=&gt; 3
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>a *= 2  #=&gt; 6
+<span class="line-numbers"><a href="#n4" name="n4">4</a></span>a %= 3  #=&gt; 0
+</pre></div>
+</div>
+</div>
+
+<p>Operational assignment works for every <em>binary</em> operation shown in this chapter. However, the logical operators (<code>||</code> and <code>&amp;&amp;</code>) have special behavior when written as operational assignments.</p>
+
+<h3 id="or-assignment">Or-assignment</h3>
+
+<p><code>||=</code>, referred to as “or-assignment” loosely expands from <code>a ||= b</code> to <code>a || a = b</code>, rather than the normal <code>a = a || b</code>. This is a “loose” expansion, because <code>a</code> does not have to exist before the assignment is written.</p>
+
+<p>The expression <code>a ||= b</code> will always assign <code>b</code> into <code>a</code>, so long as the <code>a</code> is <em>not</em> a truthy value. If <code>a</code> does not yet exist, it is considered falsey by the assignment and created as a new variable with the value of <code>b</code>.</p>
+
+<p>If the value of <code>a</code> is truthy, the assignment will not occur, and the existing value for <code>a</code> will be returned as the result.</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>a ||= 2  #=&gt; 2
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span># `a` is truthy, so no assignment occurs.
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>a ||= 3  #=&gt; 3
+<span class="line-numbers"><a href="#n4" name="n4">4</a></span>z ||= nil   #=&gt; nil
+<span class="line-numbers"><a href="#n5" name="n5">5</a></span># `nil` is falsey, so assignment occurs.
+<span class="line-numbers"><a href="#n6" name="n6">6</a></span>z ||= false #=&gt; false
+<span class="line-numbers"><a href="#n7" name="n7">7</a></span>z ||= 3     #=&gt; 3
+<span class="line-numbers"><a href="#n8" name="n8">8</a></span>z ||= 4     #=&gt; 4
+</pre></div>
+</div>
+</div>
+
+<p>A consequence of how <code>||=</code> works means that the target is guaranteed to exist after the assignment, making it useful for ensuring default values for variables that may not exist beforehand.</p>
+
+<h3 id="and-assignment">And-assignment</h3>
+
+<p><code>&amp;&amp;=</code> (“and-assignemnt”) acts exactly like <code>||=</code>, but with an <code>&amp;&amp;</code> operation instead. In this case, the left side must be truthy for the assignment to occur.</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>a = false
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>a &amp;&amp;= 1     #=&gt; false
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>a = 1
+<span class="line-numbers"><a href="#n4" name="n4">4</a></span>a &amp;&amp;= 2     #=&gt; 2
+<span class="line-numbers"><a href="#n5" name="n5">5</a></span>z &amp;&amp;= 1     #=&gt; nil
+<span class="line-numbers"><a href="#n6" name="n6">6</a></span>z &amp;&amp;= 2     #=&gt; nil
+</pre></div>
+</div>
+</div>
+
+<p>The last two lines above may be a little surprising - one of the few cases of potentially unintuitive behavior in Myst. As mentioned above, <code>&amp;&amp;=</code> acts <em>exactly</em> like <code>||=</code>, and a consequence of <code>||=</code> is that the target will <em>always</em> exist after the operation is completed.</p>
+
+<p>However, since the assumed value of a non-existent variable is falsey, the assignment in an <code>&amp;&amp;=</code> operation is not guaranteed to happen. Logically, this makes sense, but practically it can become annoying. For example, consider the code required if <code>&amp;&amp;=</code> did <em>not</em> always initialize the target variable:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>z ||= nil
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>z &amp;&amp;= 1
+</pre></div>
+</div>
+</div>
+
+<p>Here, we’re trying to say that if <code>z</code> does not exist, create it with a <code>nil</code> value, then do the and-assignment. But, as you may have picked up, this actually won’t always work, because if <code>z</code> exists beforehand but is falsey, the or-assignment will occur, potentially changing the value of <code>z</code> (if it was <code>false</code>, it would become <code>nil</code>).</p>
+
+<p>To avoid this extra line that is still not guaranteed to work, Myst defaults the target variable to <code>nil</code>, which will ensure that the assignment does not occur (since a non-existent value is considered falsey), but will also ensure that the target variable is assigned after the operation is completed (matching the semantics of <code>||=</code>).</p>
+</div></div></main>

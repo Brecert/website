@@ -1,0 +1,305 @@
+<!DOCTYPE html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>Myst - A structured, dynamic, general-purpose language</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" rel="stylesheet" /></head><link href="../styles/get-started/style.css" rel="stylesheet" /><div class="stickybar"><nav class="navbar"><div class="info"><div class="name"><span>Myst</span></div><div class="version"><span>0.0.6</span></div></div><div class="stickylogo"><a href="http://myst-lang.org/"><img height="100%" src="./assets/myst-circle.png" width="100%" /></a></div><ul class="links"><a href="/get-started"><span>Get Started</span></a><a href="http://discord.myst-lang.org/"><span>Community</span></a><a href="https://myst-lang.github.io/myst-docs"><span>Docs</span></a><a href="https://github.com/myst-lang/myst"><span>Github</span></a></ul></nav><div class="hl breaker"></div></div><main><div class="pre code"><div class="navigation-list"><ul>Blocks and Anonymous Functions</ul><ul>Functions and Clauses</ul><ul>Pattern Matching</ul><ul>Exception Handling</ul><ul>Values and Variables</ul><ul>Types and Self</ul><ul>Modules</ul><ul>Loading Code</ul><ul>Flow Control</ul><ul>Basic Operations</ul><ul>introduction</ul></div></div><div class="container"><div class="content"><h1 id="chapter-8-blocks-and-anonymous-functions">Chapter 8: Blocks and Anonymous Functions</h1>
+
+<p>Previously in this guide, we looked at functions and how they can be defined. Beyond those basics that we’ve already seen, Myst also supports blocks, anonymous functions, and function capturing.</p>
+
+<p>Blocks and anonymous functions are both analagous to <a href="https://en.wikipedia.org/wiki/Function_pointer">function pointers</a> from lower-level languages like C or Rust. The primary purpose of both is to allow users to dynamically inject code into other methods to either modify their behavior or define handlers to be called later.</p>
+
+<p>Function capturing acts like a bridge between functions and blocks, allowing any function to be used as if it were a block.</p>
+
+<h2 id="blocks">Blocks</h2>
+
+<p>Blocks are single-clause functions, defined as suffixes for Calls to other methods. They only exist within the scope of the Call, and will be destroyed as soon as the Call returns. Myst provides two different syntaxes for defining blocks, referred to as <code>do...end</code> blocks and brace blocks.</p>
+
+<p><code>do...end</code> blocks, as their name suggests, use the <code>do</code> and <code>end</code> keywords to delimit the block. Inside, the block can contain any set of expressions, just like a normal function:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>5.times do
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>  IO.puts(&quot;hello&quot;)
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>end
+</pre></div>
+</div>
+</div>
+
+<p>The brace block syntax, on the other hand, uses curly braces for the delimiters:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>5.times{ IO.puts(&quot;hello&quot;) }
+</pre></div>
+</div>
+</div>
+
+<p>In general, <code>do...end</code> blocks are used for blocks that span multiple lines, while brace blocks are used for single-line blocks.</p>
+
+<p>When a Call also has other arguments, the block is given <em>after</em> the closing parenthesis for the arguments:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>object.method(1, 2, 3) do
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>  # do something
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>end
+<span class="line-numbers"><a href="#n4" name="n4">4</a></span>object.method(1, 2, 3){ }
+</pre></div>
+</div>
+</div>
+
+<h3 id="parameters">Parameters</h3>
+
+<p>Blocks can also define a list of parameters by specifying them between pipe characters after the opening delimiter:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>[1, 2, 3].each do |element|
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>  IO.puts(element)
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>end
+<span class="line-numbers"><a href="#n4" name="n4">4</a></span>[1, 2, 3].reduce{ |acc, elem| acc += elem }
+</pre></div>
+</div>
+</div>
+
+<p>Since blocks are really just function clauses, the parameter structure is exactly the same, with the pipe characters around them being the only difference. Blocks can even have pattern matched and interpolated parameters:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>object.method{ |a : Integer, &lt;(a*2)&gt;, *rest| :something }
+</pre></div>
+</div>
+</div>
+
+<h3 id="closures">Closures</h3>
+
+<p>Both blocks and anonymous functions are implemented as <a href="https://en.wikipedia.org/wiki/Closure_(computer_programming)">closures</a>, meaning they store and have access to their <em>lexical environment</em> (the scope where they are defined). This has a few implications, but a simple example is easily the best explanation:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>sum = 0
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>[1, 2, 3].each do |element|
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>  sum += element
+<span class="line-numbers"><a href="#n4" name="n4">4</a></span>end
+<span class="line-numbers"><a href="#n5" name="n5">5</a></span>sum #=&gt; 6
+</pre></div>
+</div>
+</div>
+
+<p>In this example, the block given to <code>each</code> creates a closure over its <em>environment</em>. Here, the environment is just the local <code>sum</code> variable defined on the first line, but will also include the value of <code>self</code> and any other variables defined in the containing scope.</p>
+
+<p>Inside of the block, the code can access, modify, and even re-assign this <code>sum</code> variable, and the result will persist even after the block has finished running. This is how the <code>sum</code> variable gets the value of <code>6</code> at the end of our example.</p>
+
+<p>However, any new variables created within the block will be limited to that block’s own scope, and will not be available from outside:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>[1, 2, 3].each do |e|
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>  sum ||= 0
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>  sum += e
+<span class="line-numbers"><a href="#n4" name="n4">4</a></span>end
+<span class="line-numbers"><a href="#n5" name="n5">5</a></span>sum #=&gt; No variable or method `sum`
+</pre></div>
+</div>
+</div>
+
+<h3 id="accepting-block-parameters">Accepting block parameters</h3>
+
+<p>Like any other parameter, functions must explicitly show that they accept a block parameter. This is done by adding a parameter to the end of the parameter list, prefixed with an ampersand (<code>&amp;</code>) to indicate that it is a block parameter.</p>
+
+<p>The block parameter can be given any name, but most commonly it is left as <code>block</code>:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span># This clause of `foo` accepts a block
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>def foo(a, b, &amp;block)
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>end
+<span class="line-numbers"><a href="#n4" name="n4">4</a></span>
+<span class="line-numbers"><a href="#n5" name="n5">5</a></span># This clause does not
+<span class="line-numbers"><a href="#n6" name="n6">6</a></span>def foo(a, b); end
+</pre></div>
+</div>
+</div>
+
+<p>Block parameters will be matched just like every other parameter. Unlike Ruby or Crystal, there is no way to implicitly accept a block parameter in Myst.</p>
+
+<p>Inside of the clause, the block parameter is accessible as a normal function, and can be called as such:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>def apply(a, b, &amp;block)
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>  block(a, b)
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>end
+<span class="line-numbers"><a href="#n4" name="n4">4</a></span>
+<span class="line-numbers"><a href="#n5" name="n5">5</a></span>apply(1, 2){ |a, b| a + b } #=&gt; 3
+</pre></div>
+</div>
+</div>
+
+<p>Block parameters can be called any number of times and with any set of arguments, so long as the block given by the Call accepts those parameters. Any mismatch will result in a match error when attempting to call the block.</p>
+
+<h2 id="anonymous-functions">Anonymous Functions</h2>
+
+<p>Anonymous functions exist part way between blocks and regular functions. Like blocks, anonymous functions are closures over their lexical scope, but like functions (and unlike blocks), anonymous functions can define multiple clauses.</p>
+
+<p>Unlike regular functions, anonymous functions do not have a name, and are <em>not</em> added to the scope of <code>self</code>. Instead, anonymous functions are <em>local values</em> that only exist within the scope where they are defined.</p>
+
+<p>Anonymous functions are defined using a special block structure using the <code>fn</code> keyword and <em>stabs</em> (<code>-&gt;</code>) to define clauses. Here’s a simple example:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"> <a href="#n1" name="n1">1</a></span>fn
+<span class="line-numbers"> <a href="#n2" name="n2">2</a></span>  -&gt;() { :no_arguments }
+<span class="line-numbers"> <a href="#n3" name="n3">3</a></span>  -&gt;(n : Integer) { :int_argument }
+<span class="line-numbers"> <a href="#n4" name="n4">4</a></span>  -&gt;(_) do
+<span class="line-numbers"> <a href="#n5" name="n5">5</a></span>    a = 1
+<span class="line-numbers"> <a href="#n6" name="n6">6</a></span>    b = 2
+<span class="line-numbers"> <a href="#n7" name="n7">7</a></span>    a + b
+<span class="line-numbers"> <a href="#n8" name="n8">8</a></span>  end
+<span class="line-numbers"> <a href="#n9" name="n9">9</a></span>end
+</pre></div>
+</div>
+</div>
+
+<p>Here, each <code>-&gt;</code> indicates a new function clause, followed by the parameters for that clause given within the parentheses, just like normal functions. Finally, the body for the clause is given just like a block, either as a brace-block or within a <code>do...end</code>. The body can be given inline or over multiple lines.</p>
+
+<p>Anonymous functions can also be written on one line, but this is generally not recommended (use a block instead):</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>fn -&gt;() { :do_something } end
+</pre></div>
+</div>
+</div>
+
+<p>Since anonymous functions are just regular expressions that create a value, they can be used as the right side of an assignment. For example:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>func = fn
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>  -&gt;() { :something }
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>end
+</pre></div>
+</div>
+</div>
+
+<p>Once an anonymous function has a name, it can be invoked just like any other function. extending the above example:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>func() #=&gt; :something
+</pre></div>
+</div>
+</div>
+
+<p>The only additional requirement here is that parentheses <em>must always</em> be given, even with no arguments. This avoids ambiguity between variable references and function calls. This also means that the anonymous function object can be passed around <em>without</em> being called by omitting the parentheses:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>func = fn
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>  -&gt;() { :something }
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>end
+<span class="line-numbers"><a href="#n4" name="n4">4</a></span>
+<span class="line-numbers"><a href="#n5" name="n5">5</a></span>other_reference = func # `func` will _not_ be called here.
+<span class="line-numbers"><a href="#n6" name="n6">6</a></span>other_reference() #=&gt; :something
+</pre></div>
+</div>
+</div>
+
+<h2 id="break-and-next">Break and Next</h2>
+
+<p>Beyond <code>return</code>, Myst provides two distinct flow control keywords for use within blocks and anonymous functions: <code>break</code> and <code>next</code>.</p>
+
+<p><code>next</code> is exactly like <code>return</code>, but meant for use within blocks to avoid visual ambiguity between a return from a block and a return from the containing method:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"> <a href="#n1" name="n1">1</a></span>sum  = 0
+<span class="line-numbers"> <a href="#n2" name="n2">2</a></span>[1, 2, 3].each do |e|
+<span class="line-numbers"> <a href="#n3" name="n3">3</a></span>  when e == 2
+<span class="line-numbers"> <a href="#n4" name="n4">4</a></span>    next nil
+<span class="line-numbers"> <a href="#n5" name="n5">5</a></span>  end
+<span class="line-numbers"> <a href="#n6" name="n6">6</a></span>
+<span class="line-numbers"> <a href="#n7" name="n7">7</a></span>  sum += e
+<span class="line-numbers"> <a href="#n8" name="n8">8</a></span>end
+<span class="line-numbers"> <a href="#n9" name="n9">9</a></span>sum #=&gt; 4
+</pre></div>
+</div>
+</div>
+
+<p><code>break</code>, on the other hand, has some special semantics. Like <code>return</code> and <code>next</code>, it accepts an optional value, and will return from the block immediately. However, <code>break</code> will <em>also</em> cause the <em>containing</em> function to return immediately as well, using the value given to <code>break</code> as the return value. For example:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>def foo(&amp;block)
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>  block(1)
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>  :from_foo
+<span class="line-numbers"><a href="#n4" name="n4">4</a></span>end
+<span class="line-numbers"><a href="#n5" name="n5">5</a></span>
+<span class="line-numbers"><a href="#n6" name="n6">6</a></span>foo{ break :from_block } #=&gt; :from_block
+</pre></div>
+</div>
+</div>
+
+<p><code>break</code> and <code>return</code> can also be used in anonymous functions in the same way:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>func = fn
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>  -&gt;(4) { break :broken }
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>  -&gt;(n) { IO.puts(n) }
+<span class="line-numbers"><a href="#n4" name="n4">4</a></span>end
+<span class="line-numbers"><a href="#n5" name="n5">5</a></span>
+<span class="line-numbers"><a href="#n6" name="n6">6</a></span>result = [1, 2, 3, 4, 5].each(&amp;func)
+<span class="line-numbers"><a href="#n7" name="n7">7</a></span>IO.puts(result)
+</pre></div>
+</div>
+</div>
+
+<p>The output of the above would be:</p>
+
+<div class="language-text highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>1
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>2
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>3
+<span class="line-numbers"><a href="#n4" name="n4">4</a></span>:broken
+</pre></div>
+</div>
+</div>
+
+<h2 id="captures">Captures</h2>
+
+<p>In the last example above, you may have noticed that we used an anonymous function as the block parameter to <code>each</code>. This was done using the <em>function capturing syntax</em>.</p>
+
+<p>Function capturing has two different uses, the first is as shown above, where the captured function is used as a block parameter, and the second is just capturing a function into a variable (much like how anonymous functions can be assigned).</p>
+
+<p>Capturing a function looks exactly like how block parameters are defined in function clauses, using an ampersand (<code>&amp;</code>) prefix to the function being captured:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>sum = 0
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>def print(a)
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>  IO.puts(a)
+<span class="line-numbers"><a href="#n4" name="n4">4</a></span>end
+<span class="line-numbers"><a href="#n5" name="n5">5</a></span>
+<span class="line-numbers"><a href="#n6" name="n6">6</a></span>[1, 2, 3].each(&amp;print)
+</pre></div>
+</div>
+</div>
+
+<p>Functions can also be captured from within modules, types, and instances:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"> <a href="#n1" name="n1">1</a></span>defmodule Foo
+<span class="line-numbers"> <a href="#n2" name="n2">2</a></span>  def foo
+<span class="line-numbers"> <a href="#n3" name="n3">3</a></span>    :hi_from_module
+<span class="line-numbers"> <a href="#n4" name="n4">4</a></span>  end
+<span class="line-numbers"> <a href="#n5" name="n5">5</a></span>end
+<span class="line-numbers"> <a href="#n6" name="n6">6</a></span>
+<span class="line-numbers"> <a href="#n7" name="n7">7</a></span>deftype Bar
+<span class="line-numbers"> <a href="#n8" name="n8">8</a></span>  def bar
+<span class="line-numbers"> <a href="#n9" name="n9">9</a></span>    :hi_from_instance
+<span class="line-numbers"><strong><a href="#n10" name="n10">10</a></strong></span>  end
+<span class="line-numbers"><a href="#n11" name="n11">11</a></span>end
+<span class="line-numbers"><a href="#n12" name="n12">12</a></span>
+<span class="line-numbers"><a href="#n13" name="n13">13</a></span>mod_func  = &amp;Foo.foo
+<span class="line-numbers"><a href="#n14" name="n14">14</a></span>inst_func = &amp;%Bar{}.bar
+<span class="line-numbers"><a href="#n15" name="n15">15</a></span>mod_func()  #=&gt; :hi_from_module
+<span class="line-numbers"><a href="#n16" name="n16">16</a></span>inst_func() #=&gt; :hi_from_instance
+</pre></div>
+</div>
+</div>
+
+<p>The most common use of function capturing, however, is inline capturing of anonymous functions. This style makes anonymous functions look a lot more like blocks given to calls directly:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>found_2 = [1, 2, 3].each(&amp;fn
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>  -&gt;(2) { break true }
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>  -&gt;(_) { false }
+<span class="line-numbers"><a href="#n4" name="n4">4</a></span>end)
+<span class="line-numbers"><a href="#n5" name="n5">5</a></span>
+<span class="line-numbers"><a href="#n6" name="n6">6</a></span>found_2 #=&gt; true
+</pre></div>
+</div>
+</div>
+
+<p>What we’ve seen here have been somewhat trivial examples, but hopefully it has shown the flexibility that blocks and anonymous functions provide, and how they can be used somewhat interchangeably to create simple, powerful, flexible expressions quickly and easily.</p>
+</div></div></main>

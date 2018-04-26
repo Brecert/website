@@ -38,20 +38,13 @@ ruby:
   description = Kramdown::Document.new(description).to_html
   puts description
 
-doctype html
-
-head
-  meta(charset="utf-8")
-  meta(name="viewport" content="width=device-width, initial-scale=1.0")
-  title #{title}
-  link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css")
-  link(rel="stylesheet" href="styles/style.css")
-
-  include src/navbar
+include src/head
+link(rel="stylesheet" href="styles/index/style.css")
+include src/navbar
  
 main
   .container
     .box.statement #{statement}
-    code.example
+    code.example.code
       pre #{example}
-    .description.code-style #{{description}} 
+    .description.code #{{description}} 

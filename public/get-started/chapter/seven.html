@@ -1,0 +1,361 @@
+<!DOCTYPE html><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>Myst - A structured, dynamic, general-purpose language</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" rel="stylesheet" /></head><link href="../styles/get-started/style.css" rel="stylesheet" /><div class="stickybar"><nav class="navbar"><div class="info"><div class="name"><span>Myst</span></div><div class="version"><span>0.0.6</span></div></div><div class="stickylogo"><a href="http://myst-lang.org/"><img height="100%" src="./assets/myst-circle.png" width="100%" /></a></div><ul class="links"><a href="/get-started"><span>Get Started</span></a><a href="http://discord.myst-lang.org/"><span>Community</span></a><a href="https://myst-lang.github.io/myst-docs"><span>Docs</span></a><a href="https://github.com/myst-lang/myst"><span>Github</span></a></ul></nav><div class="hl breaker"></div></div><main><div class="pre code"><div class="navigation-list"><ul>Blocks and Anonymous Functions</ul><ul>Functions and Clauses</ul><ul>Pattern Matching</ul><ul>Exception Handling</ul><ul>Values and Variables</ul><ul>Types and Self</ul><ul>Modules</ul><ul>Loading Code</ul><ul>Flow Control</ul><ul>Basic Operations</ul><ul>introduction</ul></div></div><div class="container"><div class="content"><h1 id="chapter-7-types-and-self">Chapter 7: Types and Self</h1>
+
+<p>Beyond Modules for grouping values together into a namespace, Myst also provides a mechanism for defining Types and Instances.</p>
+
+<p>Types are useful for defining complex data structures and ways to interact with that data more cleanly than could be done with Maps or other values.</p>
+
+<p>Every value in Myst is an instance of a type. For example, the number <code>1</code> is an instance of the type <code>Integer</code>, and <code>"hello, world"</code> is an instance of <code>String</code>.</p>
+
+<p>The majority of popular object-oriented languages refer to types as “classes”. In practice there is no distinction between the two - the name “type” is simply a preference of the language.</p>
+
+<h2 id="definition-and-instantiation">Definition and Instantiation</h2>
+
+<p>To define a Type, Myst uses the <code>deftype</code> keyword. The structure is similar to Modules, where the name must be a Constant, and the body is any series of expressions. A simple example of a type might look like this:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>deftype Car
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>end
+</pre></div>
+</div>
+</div>
+
+<p>To create an instance of this Type, Myst uses a special syntax that resembles Struct instantiation from Elixir. For example, creating an instance of the Car class would look like this:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>%Car{}
+</pre></div>
+</div>
+</div>
+
+<p>The result of instantiation is a new Instance value of the Type specified by the instantiation. These values are just like any other value, and can be used as such.</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>my_car = %Car{}
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>buy_for(%Car{}, 10_000.00)
+</pre></div>
+</div>
+</div>
+
+<p>The type for instantiation can also be specified with an interpolation:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"> <a href="#n1" name="n1">1</a></span>deftype Foo
+<span class="line-numbers"> <a href="#n2" name="n2">2</a></span>  def call; :foo; end
+<span class="line-numbers"> <a href="#n3" name="n3">3</a></span>end
+<span class="line-numbers"> <a href="#n4" name="n4">4</a></span>
+<span class="line-numbers"> <a href="#n5" name="n5">5</a></span>deftype Bar
+<span class="line-numbers"> <a href="#n6" name="n6">6</a></span>  def call; :bar; end
+<span class="line-numbers"> <a href="#n7" name="n7">7</a></span>end
+<span class="line-numbers"> <a href="#n8" name="n8">8</a></span>
+<span class="line-numbers"> <a href="#n9" name="n9">9</a></span>def make_instance(type)
+<span class="line-numbers"><strong><a href="#n10" name="n10">10</a></strong></span>  %&lt;type&gt;{}
+<span class="line-numbers"><a href="#n11" name="n11">11</a></span>end
+<span class="line-numbers"><a href="#n12" name="n12">12</a></span>
+<span class="line-numbers"><a href="#n13" name="n13">13</a></span>f = make_instance(Foo)
+<span class="line-numbers"><a href="#n14" name="n14">14</a></span>b = make_instance(Bar)
+<span class="line-numbers"><a href="#n15" name="n15">15</a></span>f.call #=&gt; :foo
+<span class="line-numbers"><a href="#n16" name="n16">16</a></span>b.call #=&gt; :bar
+</pre></div>
+</div>
+</div>
+
+<p>The interpolation can contain any expression that resolves to a Type.</p>
+
+<h2 id="instance-variables-and-initialization">Instance Variables and Initialization</h2>
+
+<p>When a new Instance of a Type is created, it goes through <em>initialization</em>, where the properties of the instance can be configured. This can be controlled by defining an <code>initialize</code> instance method on the Type.</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>deftype Car
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>  def initialize
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>    # configure the new instance here.
+<span class="line-numbers"><a href="#n4" name="n4">4</a></span>  end
+<span class="line-numbers"><a href="#n5" name="n5">5</a></span>end
+</pre></div>
+</div>
+</div>
+
+<p>If no <code>initialize</code> method is given on a Type, instances of that Type will be created with no default configuration.</p>
+
+<p>Instance variables are the properties of a Type. In our Car example, we could add instance variables for the color, the number of doors, the body style, etc. Every Instance will have its own set of instance variables.</p>
+
+<p>Instance variables in Myst are created and referenced with identifiers that are prefixed with an <code>@</code>. By default, the instance variables of a Type are private, and must be exposed by methods on the Type to be made public. Attempting to access an instance variable before it has been set will create the variable with an initial value of <code>nil</code>.</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"> <a href="#n1" name="n1">1</a></span>deftype Car
+<span class="line-numbers"> <a href="#n2" name="n2">2</a></span>  def initialize(color, door_count)
+<span class="line-numbers"> <a href="#n3" name="n3">3</a></span>    @color      = color
+<span class="line-numbers"> <a href="#n4" name="n4">4</a></span>    @door_count = door_count
+<span class="line-numbers"> <a href="#n5" name="n5">5</a></span>  end
+<span class="line-numbers"> <a href="#n6" name="n6">6</a></span>
+<span class="line-numbers"> <a href="#n7" name="n7">7</a></span>  def color; @color; end
+<span class="line-numbers"> <a href="#n8" name="n8">8</a></span>  def color=(c); @color = c; end
+<span class="line-numbers"> <a href="#n9" name="n9">9</a></span>
+<span class="line-numbers"><strong><a href="#n10" name="n10">10</a></strong></span>  def door_count; @door_count; end
+<span class="line-numbers"><a href="#n11" name="n11">11</a></span>  def door_count=(dc); @door_count = dc; end
+<span class="line-numbers"><a href="#n12" name="n12">12</a></span>end
+</pre></div>
+</div>
+</div>
+
+<p>Here, <code>Car</code> has two instance variables, <code>@color</code> and <code>@door_count</code>. Each instance will have it’s own copies of these instance variables. The instance variables are created as soon as they are assigned.</p>
+
+<p>The <code>initialize</code> method above accepts two parameters. Arguments are passed to <code>initialize</code> by listing them between the curly braces used in instantiation:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>  sedan = %Car{&quot;gray&quot;, 4}
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>  coupe = %Car{&quot;red&quot;,  2}
+</pre></div>
+</div>
+</div>
+
+<p>The groups of methods at the bottom of this definition of <code>Car</code> are generally referred to as <em>getters</em> and <em>setters</em> for the instance variables. These expose the private instance variables as public properties that can be interacted with.</p>
+
+<p>With the way Myst handles Calls and assignments, these methods essentially allow us to treat the properties of the Type as normal variables. For example, updating the color of the <code>sedan</code> instance from above can be done just like a normal assignment:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>sedan.color = &quot;blue&quot;
+</pre></div>
+</div>
+</div>
+
+<p>These Calls also work with operational assignments, and any other places where variables are used:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>sedan.door_count += 2 #=&gt; 6
+</pre></div>
+</div>
+</div>
+
+<p>An important note is that instance variables are <em>not</em> valid outside of instance methods. Using an instance variable in the type definition body or anywhere else will likely cause unexpected behavior.</p>
+
+<h2 id="self">Self</h2>
+
+<p>When dealing with Instances, there are often cases where methods would like to reference the object that they belong to. To accomodate this, Myst provides a special <code>self</code> variable, which refers to that object.</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>deftype Foo
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>  def reflect
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>    self
+<span class="line-numbers"><a href="#n4" name="n4">4</a></span>  end
+<span class="line-numbers"><a href="#n5" name="n5">5</a></span>end
+<span class="line-numbers"><a href="#n6" name="n6">6</a></span>
+<span class="line-numbers"><a href="#n7" name="n7">7</a></span>f = %Foo{}
+<span class="line-numbers"><a href="#n8" name="n8">8</a></span>f.reflect == f #=&gt; true
+</pre></div>
+</div>
+</div>
+
+<p><code>self</code> can also be used to disambiguate method calls from local variables. In particular, this is useful for calling getters and setters from initializers. Consider this code:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"> <a href="#n1" name="n1">1</a></span>deftype Person
+<span class="line-numbers"> <a href="#n2" name="n2">2</a></span>  def initialize(given_name)
+<span class="line-numbers"> <a href="#n3" name="n3">3</a></span>    full_name = given_name
+<span class="line-numbers"> <a href="#n4" name="n4">4</a></span>  end
+<span class="line-numbers"> <a href="#n5" name="n5">5</a></span>
+<span class="line-numbers"> <a href="#n6" name="n6">6</a></span>  def full_name; @full_name; end
+<span class="line-numbers"> <a href="#n7" name="n7">7</a></span>  def full_name=(full_name)
+<span class="line-numbers"> <a href="#n8" name="n8">8</a></span>    @full_name = full_name
+<span class="line-numbers"> <a href="#n9" name="n9">9</a></span>    [@first_name, @last_name] =: full_name.split
+<span class="line-numbers"><strong><a href="#n10" name="n10">10</a></strong></span>  end
+<span class="line-numbers"><a href="#n11" name="n11">11</a></span>
+<span class="line-numbers"><a href="#n12" name="n12">12</a></span>  def first_name; @first_name; end
+<span class="line-numbers"><a href="#n13" name="n13">13</a></span>  def last_name;  @last_name; end
+<span class="line-numbers"><a href="#n14" name="n14">14</a></span>end
+<span class="line-numbers"><a href="#n15" name="n15">15</a></span>
+<span class="line-numbers"><a href="#n16" name="n16">16</a></span>p = %Person{&quot;Freddy Mercury&quot;}
+<span class="line-numbers"><a href="#n17" name="n17">17</a></span>p.full_name   #=&gt; nil
+<span class="line-numbers"><a href="#n18" name="n18">18</a></span>p.first_name  #=&gt; nil
+<span class="line-numbers"><a href="#n19" name="n19">19</a></span>p.last_name   #=&gt; nil
+</pre></div>
+</div>
+</div>
+
+<p>Something that may or may not be obvious here is that the <code>full_name</code> setter (<code>full_name=</code>) will <em>not</em> be called, and the <code>@full_name</code> instance variable will not be assigned. Instead, the assignment in the initializer is interpreted as a new <em>local</em> variable <code>full_name</code>, rather than a call to the <code>full_name=</code> method.</p>
+
+<p>One solution to this problem would be to assign the <code>@full_name</code> instance variable directly in the initializer:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"> <a href="#n1" name="n1">1</a></span>def initialize(given_name)
+<span class="line-numbers"> <a href="#n2" name="n2">2</a></span>  @full_name = given_name
+<span class="line-numbers"> <a href="#n3" name="n3">3</a></span>end
+<span class="line-numbers"> <a href="#n4" name="n4">4</a></span>
+<span class="line-numbers"> <a href="#n5" name="n5">5</a></span># ...
+<span class="line-numbers"> <a href="#n6" name="n6">6</a></span>p = %Person{&quot;Freddy Mercury&quot;}
+<span class="line-numbers"> <a href="#n7" name="n7">7</a></span>p.full_name   #=&gt; &quot;Freddy Mercury&quot;
+<span class="line-numbers"> <a href="#n8" name="n8">8</a></span>p.first_name  #=&gt; nil
+<span class="line-numbers"> <a href="#n9" name="n9">9</a></span>p.last_name   #=&gt; nil
+</pre></div>
+</div>
+</div>
+
+<p>However, there could be some cases where there is added functionality for setting a variable, and calling the setter method is more desirable. For example, our <code>full_name=</code> setter for the <code>Person</code> type above also assigns the <code>@first_name</code> and <code>@last_name</code> instance variables. Without calling the setter, these variables are not assigned.</p>
+
+<p>The other solution is to use <code>self</code> to ensure that the assignment is interpreted as a call to <code>full_name</code>:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"> <a href="#n1" name="n1">1</a></span>def initialize(given_name)
+<span class="line-numbers"> <a href="#n2" name="n2">2</a></span>  self.full_name = given_name
+<span class="line-numbers"> <a href="#n3" name="n3">3</a></span>end
+<span class="line-numbers"> <a href="#n4" name="n4">4</a></span>
+<span class="line-numbers"> <a href="#n5" name="n5">5</a></span># ...
+<span class="line-numbers"> <a href="#n6" name="n6">6</a></span>p = %Person{&quot;Freddy Mercury&quot;}
+<span class="line-numbers"> <a href="#n7" name="n7">7</a></span>p.full_name   #=&gt; &quot;Freddy Mercury&quot;
+<span class="line-numbers"> <a href="#n8" name="n8">8</a></span>p.first_name  #=&gt; &quot;Freddy&quot;
+<span class="line-numbers"> <a href="#n9" name="n9">9</a></span>p.last_name   #=&gt; &quot;Mercury&quot;
+</pre></div>
+</div>
+</div>
+
+<h2 id="static-methods">Static Methods</h2>
+
+<p>In addition to instance methods, Types can also define <em>static</em> methods. Static methods are methods that can be called from the Type itself, rather than instances of the type. In this sense, static methods essentially act like methods on a Module.</p>
+
+<p>To define static methods, Myst uses the <code>defstatic</code> keyword:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>deftype Foo
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>  defstatic foo
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>    :static_foo
+<span class="line-numbers"><a href="#n4" name="n4">4</a></span>  end
+<span class="line-numbers"><a href="#n5" name="n5">5</a></span>end
+<span class="line-numbers"><a href="#n6" name="n6">6</a></span>
+<span class="line-numbers"><a href="#n7" name="n7">7</a></span>Foo.foo #=&gt; :static_foo
+</pre></div>
+</div>
+</div>
+
+<p>One common use case for static methods is defining new ways of constructing instances. For example, we could define various methods for instantiating different types of Cars:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"> <a href="#n1" name="n1">1</a></span>deftype Car
+<span class="line-numbers"> <a href="#n2" name="n2">2</a></span>  defstatic coupe(color)
+<span class="line-numbers"> <a href="#n3" name="n3">3</a></span>    %Car{color, 2}
+<span class="line-numbers"> <a href="#n4" name="n4">4</a></span>  end
+<span class="line-numbers"> <a href="#n5" name="n5">5</a></span>
+<span class="line-numbers"> <a href="#n6" name="n6">6</a></span>  defstatic sedan(color)
+<span class="line-numbers"> <a href="#n7" name="n7">7</a></span>    %Car{color, 4}
+<span class="line-numbers"> <a href="#n8" name="n8">8</a></span>  end
+<span class="line-numbers"> <a href="#n9" name="n9">9</a></span>
+<span class="line-numbers"><strong><a href="#n10" name="n10">10</a></strong></span>  def initialize(color, door_count)
+<span class="line-numbers"><a href="#n11" name="n11">11</a></span>    @color = color
+<span class="line-numbers"><a href="#n12" name="n12">12</a></span>    @door_count = door_count
+<span class="line-numbers"><a href="#n13" name="n13">13</a></span>  end
+<span class="line-numbers"><a href="#n14" name="n14">14</a></span>
+<span class="line-numbers"><a href="#n15" name="n15">15</a></span>  def color; @color; end
+<span class="line-numbers"><a href="#n16" name="n16">16</a></span>  def door_count; @door_count; end
+<span class="line-numbers"><a href="#n17" name="n17">17</a></span>end
+<span class="line-numbers"><a href="#n18" name="n18">18</a></span>
+<span class="line-numbers"><a href="#n19" name="n19">19</a></span>c = Car.coupe(&quot;blue&quot;)
+<span class="line-numbers"><strong><a href="#n20" name="n20">20</a></strong></span>c.door_count = 2
+<span class="line-numbers"><a href="#n21" name="n21">21</a></span>s = Car.sedan(&quot;gray&quot;)
+<span class="line-numbers"><a href="#n22" name="n22">22</a></span>s.door_count = 4
+</pre></div>
+</div>
+</div>
+
+<p>Inside of static methods, <code>self</code> refers to the Type being modified. This can be useful when creating instances of the type, helping to avoid potential refactoring issues:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"> <a href="#n1" name="n1">1</a></span>deftype Foo
+<span class="line-numbers"> <a href="#n2" name="n2">2</a></span>  defstatic create
+<span class="line-numbers"> <a href="#n3" name="n3">3</a></span>    %&lt;self&gt;{}
+<span class="line-numbers"> <a href="#n4" name="n4">4</a></span>  end
+<span class="line-numbers"> <a href="#n5" name="n5">5</a></span>
+<span class="line-numbers"> <a href="#n6" name="n6">6</a></span>  def to_s
+<span class="line-numbers"> <a href="#n7" name="n7">7</a></span>    &quot;foo&quot;
+<span class="line-numbers"> <a href="#n8" name="n8">8</a></span>  end
+<span class="line-numbers"> <a href="#n9" name="n9">9</a></span>end
+<span class="line-numbers"><strong><a href="#n10" name="n10">10</a></strong></span>
+<span class="line-numbers"><a href="#n11" name="n11">11</a></span>IO.puts(Foo.create) #=&gt; &quot;foo&quot;
+</pre></div>
+</div>
+</div>
+
+<p>This example uses the <em>interpolated instantiation</em> syntax (<code>%&lt;self&gt;{}</code>) to dynamically specify the type for instantiation. This avoids explicitly repeating the name <code>Foo</code>, which could help avoid errors when refactoring the name of the class.</p>
+
+<h2 id="re-opening-types">Re-opening Types</h2>
+
+<p>Just like Modules, Types can be <em>re-opened</em> to append to their definition. For example, starting with a simple definition of a Type:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"> <a href="#n1" name="n1">1</a></span>deftype Foo
+<span class="line-numbers"> <a href="#n2" name="n2">2</a></span>  def initialize(value : Integer)
+<span class="line-numbers"> <a href="#n3" name="n3">3</a></span>    @value = value
+<span class="line-numbers"> <a href="#n4" name="n4">4</a></span>  end
+<span class="line-numbers"> <a href="#n5" name="n5">5</a></span>
+<span class="line-numbers"> <a href="#n6" name="n6">6</a></span>  def add(other : Integer)
+<span class="line-numbers"> <a href="#n7" name="n7">7</a></span>    @value += other
+<span class="line-numbers"> <a href="#n8" name="n8">8</a></span>  end
+<span class="line-numbers"> <a href="#n9" name="n9">9</a></span>end
+<span class="line-numbers"><strong><a href="#n10" name="n10">10</a></strong></span>
+<span class="line-numbers"><a href="#n11" name="n11">11</a></span>foo1 = %Foo{10}
+<span class="line-numbers"><a href="#n12" name="n12">12</a></span>foo1.add(2)
+</pre></div>
+</div>
+</div>
+
+<p>Later on, potentially even in another file, this type could be re-opened to add new methods to it:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>deftype Foo
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>  def sub(other : Integer)
+<span class="line-numbers"><a href="#n3" name="n3">3</a></span>    @value -= other
+<span class="line-numbers"><a href="#n4" name="n4">4</a></span>  end
+<span class="line-numbers"><a href="#n5" name="n5">5</a></span>end
+<span class="line-numbers"><a href="#n6" name="n6">6</a></span>
+<span class="line-numbers"><a href="#n7" name="n7">7</a></span>foo2 = %Foo{10}
+</pre></div>
+</div>
+</div>
+
+<p>Now, the type <code>Foo</code> has both an <code>add</code> method and a <code>sub</code> method. All instances of <code>Foo</code> (even ones that were created before the Type was re-opened) can use both of these methods freely:</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"><a href="#n1" name="n1">1</a></span>foo2.add(3)
+<span class="line-numbers"><a href="#n2" name="n2">2</a></span>foo1.sub(4)
+</pre></div>
+</div>
+</div>
+
+<h2 id="include-and-extend">Include and Extend</h2>
+
+<p>Just like Modules, Types can include other Modules to bring in new functionality. Using <code>include</code> in a Type will add the Module’s methods as instance methods on the Type.</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"> <a href="#n1" name="n1">1</a></span>defmodule Foo
+<span class="line-numbers"> <a href="#n2" name="n2">2</a></span>  def foo
+<span class="line-numbers"> <a href="#n3" name="n3">3</a></span>    :module_foo
+<span class="line-numbers"> <a href="#n4" name="n4">4</a></span>  end
+<span class="line-numbers"> <a href="#n5" name="n5">5</a></span>end
+<span class="line-numbers"> <a href="#n6" name="n6">6</a></span>
+<span class="line-numbers"> <a href="#n7" name="n7">7</a></span>deftype Bar
+<span class="line-numbers"> <a href="#n8" name="n8">8</a></span>  include Foo
+<span class="line-numbers"> <a href="#n9" name="n9">9</a></span>end
+<span class="line-numbers"><strong><a href="#n10" name="n10">10</a></strong></span>
+<span class="line-numbers"><a href="#n11" name="n11">11</a></span>%Bar{}.foo #=&gt; :module_foo
+</pre></div>
+</div>
+</div>
+
+<p>In addition, Myst provides a mechanism for adding Modules as <em>static</em> methods using the <code>extend</code> keyword. The result of <code>extend</code> is essentially the same as using <code>include</code> from within another Module.</p>
+
+<div class="language-myst highlighter-coderay"><div class="CodeRay">
+  <div class="code"><pre><span class="line-numbers"> <a href="#n1" name="n1">1</a></span>defmodule Foo
+<span class="line-numbers"> <a href="#n2" name="n2">2</a></span>  def foo
+<span class="line-numbers"> <a href="#n3" name="n3">3</a></span>    :module_foo
+<span class="line-numbers"> <a href="#n4" name="n4">4</a></span>  end
+<span class="line-numbers"> <a href="#n5" name="n5">5</a></span>end
+<span class="line-numbers"> <a href="#n6" name="n6">6</a></span>
+<span class="line-numbers"> <a href="#n7" name="n7">7</a></span>deftype Bar
+<span class="line-numbers"> <a href="#n8" name="n8">8</a></span>  extend Foo
+<span class="line-numbers"> <a href="#n9" name="n9">9</a></span>end
+<span class="line-numbers"><strong><a href="#n10" name="n10">10</a></strong></span>
+<span class="line-numbers"><a href="#n11" name="n11">11</a></span>Bar.foo #=&gt; :module_foo
+</pre></div>
+</div>
+</div>
+
+<p><code>extend</code> can be useful for quickly implementing class-level DSLs such as schema definitions or or common patterns like the <a href="https://en.wikipedia.org/wiki/Factory_method_pattern">Factory pattern</a>.</p>
+</div></div></main>

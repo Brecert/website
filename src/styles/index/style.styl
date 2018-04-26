@@ -1,0 +1,28 @@
+@import "../mixins"
+@import "../colors"
+@import "../general"
+@import "../navbar"
+
+main
+  .container
+    display: grid
+    .box
+      padding-right 20px
+      grid-area: statement
+      font-size: 20px
+    .example 
+      grid-area: example
+      padding-left: 0
+    .description
+      grid-area: description
+
+    
+@css {
+  main .container {
+    grid-template:" . . ." 15px
+                  " statement . example " auto
+                  " . . . " 20px
+                  " description description description " 1fr
+                  / 1fr 0px 1fr
+  }
+}
